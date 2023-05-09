@@ -1,0 +1,182 @@
+<%- include('./../../parziali/header.ejs') %>
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 mx-auto">
+            <h3 class="text-center mb-4">Gestione notifiche sistema</h3>
+            <form id="mail-form">
+                <div class="form-group">
+                    <input type="email" class="form-control" id="destinatario" placeholder="Destinatario" />
+                </div>
+                <div class="form-group">
+                    <select class="form-control" id="type">
+                        <option value="acquisti">Acquisti</option>
+                        <option value="cq">CQ</option>
+                    </select>
+                </div>
+                <button id="mail-form-button" type="submit" class="btn btn-primary btn-block">Aggiungi</button>
+            </form>
+            <br />
+        </div>
+    </div>
+</div>
+<legend>Elenco utenti che ricevono le mail di cd/sollecito</legend>
+<table>
+    <thead>
+        <th>Mail</th>
+        <th>Destinazione</th>
+        <th>Data aggiunta</th>
+        <th>Elimina</th>
+    </thead>
+    <tbody id="mails-list">
+        <% if (mails) { %>
+        <% mails.forEach(element => { %>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>
+                <a class="btn btn-danger" href="">
+                    <i class="fas fa-trash"></i>
+                </a>
+            </td>
+        </tr>
+        <% }) %>
+        <% } %>
+    </tbody>
+</table>
+
+
+<script>
+    $(document).ready(function () {
+        // Get mails
+        function getMails() {
+            $.get('/api/mail/cq/', function (mails) {
+                const mailsList = $('#mails-list');
+                mailsList.empty();
+                console.log(mails)
+                mails.forEach(function (mail) {
+                    console.log(mail)
+                    mailsList.append(
+                        `<tr id="mail-${mail._id}">
+                  <td>${mail.destinatario}</td>
+                  <td>${mail.type}</td>
+                  <td>${moment(mail.data, "YYYYMMDDHHmmss").format("DD/MM/YYYY HH:mm:ss")}</td>
+                  <td>
+                    <a class="btn btn-danger btn-delete" data-id="${mail._id}"> <i class="fas fa-trash"></i> </a>
+                  </td>
+                </tr>`
+                    );
+                });
+            });
+        }
+
+        function isEmail(email) {
+            var regex = /^([a-zA-Z0-9_.+-])+\@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+            return regex.test(email);
+        }
+        // Add mail
+        $('#mail-form-button').click(function (event) {
+            event.preventDefault();
+            if (!isEmail($('#destinatario').val())) {
+                alert('Inserisci una mail valida');
+            } else if (!$('#destinatario').val().includes("@italtergi.com")) {
+                alert('Inserisci una mail interna');
+            } else {
+                fetch('/api/mail/cq', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        destinatario: $('#destinatario').val(),
+                        type: $('#type').val()
+                    })
+                }).then(function (response) {
+                    if (response.ok) {
+                    $('#destinatario').val('');
+                    } else {
+                        alert('Errore');
+                    }
+                    getMails();                  
+                }).catch(error => {
+                    alert("There was a problem with the fetch operation: " + error.message);
+                });
+            }
+        });
+
+
+        // Delete mail
+        $('#mails-list').on('click', '.btn-delete', function () {
+            const id = $(this).data('id');
+            $.ajax({
+                url: `/api/mail/cq/${id}`,
+                type: 'DELETE',
+                success: function () {
+                    $(`#mail-${id}`).remove();
+                }
+            });
+        });
+
+
+        // Initial load
+        getMails();
+        // Datatable init
+        $('table').DataTable({
+            'dom': 'Bfrtip',
+            'order': [
+                [0, "asc"],
+
+            ],
+            'columnDefs': [{
+                'type': 'date-euro',
+                'targets': [3]
+            }],
+            'buttons': [
+                'copy', 'csv', 'excel', 'pdf', 'print'
+            ],
+            "buttons": {
+                "buttons": [{
+                    'extend': 'excelHtml5',
+                    'text': '<i class="fas fa-file-excel"></i> Esporta in Excel',
+                    'titleAttr': 'Esporta in Excel',
+                    "className": 'btn btn-success'
+                }, ],
+                "dom": {
+                    "button": {
+                        "className": 'btn'
+                    }
+                },
+            },
+            "language": {
+                "sEmptyTable": "Nessun dato presente nella tabella",
+                "sInfo": "Vista da _START_ a _END_ di _TOTAL_ elementi",
+                "sInfoEmpty": "Vista da 0 a 0 di 0 elementi",
+                "sInfoFiltered": "(filtrati da _MAX_ elementi totali)",
+                "sInfoPostFix": "",
+                "sInfoThousands": ".",
+                "sLengthMenu": "Visualizza _MENU_ elementi",
+                "sLoadingRecords": "Caricamento...",
+                "sProcessing": "Elaborazione...",
+                "sSearch": "Cerca:",
+                "sZeroRecords": "La ricerca non ha portato alcun risultato.",
+                "oPaginate": {
+                    "sFirst": "Inizio",
+                    "sPrevious": "Precedente",
+                    "sNext": "Successivo",
+                    "sLast": "Fine"
+                },
+                "oAria": {
+                    "sSortAscending": ": attiva per ordinare la colonna in ordine crescente",
+                    "sSortDescending": ": attiva per ordinare la colonna in ordine decrescente"
+                }
+            },
+            "lengthMenu": [
+                [15, 35, 50, -1],
+                [15, 35, 50, "All"]
+            ],
+        });
+
+    });
+</script>
+
+<%- include('./../../parziali/footer.ejs') %>

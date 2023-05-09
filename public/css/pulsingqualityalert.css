@@ -1,0 +1,20 @@
+.pulsingButton {
+    box-shadow: 0 0 0 0 rgba(63, 63, 191, 0.7);
+    -webkit-animation: pulsing 2.25s infinite cubic-bezier(0.66, 0, 0, 1);
+    text-decoration: none !important;
+
+}
+
+
+
+/* Animation */
+
+@-webkit-keyframes pulsing {
+    to {
+        box-shadow: 0 0 0 30px rgba(232, 76, 61, 0);
+    }
+}
+
+
+
+

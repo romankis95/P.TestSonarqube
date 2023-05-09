@@ -1,0 +1,64 @@
+<div class="modal fade" id="ModalDeleteUser" tabindex="-1" role="dialog" aria-labelledby="ModalDeleteUserCenterTitle"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ModalDeleteUserLabel">Rimuovere l'utente</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="frmdeleteuser" action="/users/deleteuser/" method="post" autocomplete="off">
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <label class="col-4 col-form-label" for="mdldeleteusername">Username</label>
+                        <div class="col-8">
+                            <input readonly id="mdldeleteusername" minlength="4" maxlength="12" name="mdldeleteusername"
+                                type="text" class="form-control" required="required">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="mdldeletenomereale" class="col-4 col-form-label">Nome Reale</label>
+                        <div class="col-8">
+                            <input readonly id="mdldeletenomereale" name="mdldeletenomereale" type="text"
+                                class="form-control" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <p style="color: red;">NB:Operazione irreversibile</p>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Chiudi</button>
+                    <button type="submit" class="btn btn-danger">Elimina</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    function userToDelete(id) {
+        const xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                var response = JSON.parse(this.responseText);
+                const form = document.getElementById("frmdeleteuser");
+                if (response) {
+                    console.log(response);
+                    console.log(id)
+                    form.action = "/users/deleteuser/" + id;
+                    const newusername = document.getElementById("mdldeleteusername");
+                    newusername.value = response.username;
+                    const mdlupdatenomereale = document.getElementById("mdldeletenomereale");
+                    mdlupdatenomereale.value = response.nomereale;
+                } else {
+                    form.action = "";
+                    form.reset();
+                }
+            }
+        }
+        xmlhttp.open("GET", "/users/queryuser/" + id, true);
+        xmlhttp.send();
+    }
+</script>

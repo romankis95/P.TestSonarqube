@@ -1,0 +1,26 @@
+{
+    "system": {
+        "env": "DEV",
+        "serverip": "127.0.0.1",
+        "serverport": 25000,
+        "socket":23000,
+        "dbroot": "mongodb://127.0.0.1",
+        "dbname": "progettomagazzino",
+        "dbuser": "",
+        "dbpass": "",
+        "backupdir": "C:/Program Files/MongoDB/Server/4.2/bin/",
+        "versione": "7.0.0",
+        "dataaggiornamento": "18/04/2023"
+    },
+    "jobs": {
+        "updateStockFromSap": true
+    },
+    "urgenzemagazzino": {
+        "0": "Urgentissimo",
+        "1": "30 minuti",
+        "2": "Un&apos;ora",
+        "3": "Prossimo Turno",
+        "4": "Appena arrivano in azienda",
+        "5": "Per prep CDL al mattino"
+    }
+}

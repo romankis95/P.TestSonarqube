@@ -1,0 +1,110 @@
+<div class="modal fade" id="ModalEditUser" tabindex="-1" role="dialog" aria-labelledby="ModalEditUserCenterTitle"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ModalEditUserLabel">Aggiornare l'utente</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="frmupdateuser" action="/users/updateuser/" method="post" autocomplete="off">
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <label class="col-4 col-form-label" for="mdlupdateusername">Username</label>
+                        <div class="col-8">
+                            <input readonly id="mdlupdateusername" minlength="4" maxlength="12" name="mdlupdateusername"
+                                type="text" class="form-control" required="required">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="mdlupdatenomereale" class="col-4 col-form-label">Nome Reale</label>
+                        <div class="col-8">
+                            <input id="mdlupdatenomereale" name="mdlupdatenomereale" type="text" class="form-control"
+                                required>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="updateselect" class="col-4 col-form-label">Seleziona magazzino</label>
+                        <div class="col-8">
+                            <select id="updateselect" name="updateselect" class="custom-select" required>
+                                <option value="">Seleziona Magazzino</option>
+                                <% magazzini.forEach(magazzino => { %>
+                                <option value="<%-magazzino.nome%>"><%-magazzino.nome%></option>
+                                <% }) %>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-4">E' un amministratore:</label>
+                        <div class="col-8">
+                            <div class="custom-control custom-radio custom-control-inline">
+                                <input name="mdlupdateisadmin" id="mdlupdateisadmin_0" type="radio"
+                                    class="custom-control-input" value="true" required="required">
+                                <label for="mdlupdateisadmin_0" class="custom-control-label">Si</label>
+                            </div>
+                            <div class="custom-control custom-radio custom-control-inline">
+                                <input name="mdlupdateisadmin" id="mdlupdateisadmin_1" type="radio"
+                                    class="custom-control-input" value="false" required="required" checked="checked">
+                                <label for="mdlupdateisadmin_1" class="custom-control-label">No</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Chiudi</button>
+                    <button type="submit" class="btn btn-primary">Aggiorna</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    
+    function userToUpdate(id) {
+        const xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                var response = JSON.parse(this.responseText);
+                const form = document.getElementById("frmupdateuser");
+                if (response) {
+                    form.action = "/users/updateuser/" + id;
+                    const newusername = document.getElementById("mdlupdateusername");
+                    newusername.value = response.username;
+                    const mdlupdatenomereale = document.getElementById("mdlupdatenomereale");
+                    mdlupdatenomereale.value = response.nomereale;
+                    const select = document.getElementById("updateselect");
+                    for (let i = 0; i < select.options.length; i++) {
+                        if (select.options[i].value === response.magazzino) {
+                            select.options[i].selected = true;
+                            break;
+                        }
+                    }
+                } else {
+                    form.action = "";
+                    form.reset();
+                }
+            }
+        }
+        xmlhttp.open("GET", "/users/queryuser/" + id, true);
+        xmlhttp.send();
+    }
+</script>
+
+
+<script>
+    $(function () {
+        $('#frmupdateuser :input').on("input", function () {
+            var username = document.getElementById("mdlupdateusername").value;
+            username = username.trim();
+            username = username.replace(/[^0-9a-z]/gi, '');
+            username = username.toUpperCase();
+            document.getElementById("mdlupdateusername").value = username;
+            var nomereale = document.getElementById("mdlupdatenomereale").value;
+            nomereale = nomereale.replace(/[^0-9a-z ]/gi, '')
+            document.getElementById("mdlupdatenomereale").value = nomereale;
+        }).trigger("input");
+    });
+</script>

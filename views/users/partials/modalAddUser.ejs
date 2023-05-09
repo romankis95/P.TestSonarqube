@@ -1,0 +1,88 @@
+<div class="modal fade" id="modalAddUser" tabindex="-1" role="dialog" aria-labelledby="modalAddUserTitle"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Aggiungi nuovo utente</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Chiudi">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="frmadduser" action="/users/adduser" method="post" autocomplete="off">
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <label class="col-4 col-form-label" for="mdlusername">Username</label>
+                        <div class="col-8">
+                            <input id="mdlusername" minlength="4" maxlength="12" name="mdlusername" type="text"
+                                class="form-control" required="required">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="mdlnomereale" class="col-4 col-form-label">Nome Reale</label>
+                        <div class="col-8">
+                            <input id="mdlnomereale" name="mdlnomereale" type="text" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="select" class="col-4 col-form-label">Seleziona magazzino</label>
+                        <div class="col-8">
+                            <select id="select" name="select" class="custom-select" required>
+                                <option value="">Seleziona Magazzino</option>
+                                <% magazzini.forEach(magazzino => { %>
+                                <option value="<%-magazzino.nome%>"><%-magazzino.nome%></option>
+                                <% }) %>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-4">E' un amministratore:</label>
+                        <div class="col-8">
+                            <div class="custom-control custom-radio custom-control-inline">
+                                <input name="mdlisadmin" id="mdlisadmin_0" type="radio" class="custom-control-input"
+                                    value="true" required="required">
+                                <label for="mdlisadmin_0" class="custom-control-label">Si</label>
+                            </div>
+                            <div class="custom-control custom-radio custom-control-inline">
+                                <input name="mdlisadmin" id="mdlisadmin_1" type="radio" class="custom-control-input"
+                                    value="false" required="required" checked="checked">
+                                <label for="mdlisadmin_1" class="custom-control-label">No</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Chiudi</button>
+                    <button type="submit" class="btn btn-primary">Crea utente</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+</div>
+
+
+
+<script>
+    $('#modalAddUser').on('shown.bs.modal', function () {
+        $('#mdlusername').trigger('focus');
+    });
+
+   
+    
+</script>
+
+ <script>
+     $(function () {
+         $('#frmadduser :input').on("input", function () {
+             var username = document.getElementById("mdlusername").value;
+             username = username.trim();
+             username = username.replace(/[^0-9a-z]/gi, '');
+             username = username.toUpperCase();
+             document.getElementById("mdlusername").value = username;
+             var nomereale = document.getElementById("mdlnomereale").value;
+             nomereale = nomereale.replace(/[^0-9a-z ]/gi, '')
+             document.getElementById("mdlnomereale").value = nomereale;
+         }).trigger("input");
+     });
+ </script>

@@ -1,0 +1,88 @@
+<div class="modal fade" id="ModalPassUser" tabindex="-1" role="dialog" aria-labelledby="ModalPassUser"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ModalPassUserLabel"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="updateuserpassword" action="/users/updateuserpassword/" method="post" autocomplete="off">
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <label class="col-4 col-form-label" for="mdlpassword">Password</label>
+                        <div class="col-8">
+                            <input id="mdlpassword" name="mdlpassword" type="password" class="form-control"
+                                required="required">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-4 col-form-label" for="mdlpassword2">Conferma P</label>
+                        <div class="col-8">
+                            <input id="mdlpassword2" name="mdlpassword2" type="password" class="form-control"
+                                required="required">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Chiudi</button>
+                    <button disabled id="btnpassworchange" type="submit" class="btn btn-primary">Aggiorna</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function passUpdate(id) {
+        const xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                var response = JSON.parse(this.responseText);
+                const form = document.getElementById("frmupdateuser");
+                if (response) {
+                    document.getElementById("ModalPassUserLabel").innerHTML = "Nuova password per " + response
+                        .username;
+                    document.getElementById("updateuserpassword").action = "/users/updateuserpassword/" + response
+                        ._id;
+                    $('#mdlpassword').val('');
+                    $('#mdlpassword2').val('');
+                    $('#mdlpassword').removeClass('is-invalid');
+                    $('#mdlpassword').removeClass('is-valid');
+                    $('#mdlpassword2').removeClass('is-invalid');
+                    $('#mdlpassword2').removeClass('is-valid');
+                    document.getElementById("btnpassworchange").disabled = false;
+                } else {
+                    form.action = "";
+                    document.getElementById("ModalPassUserLabel").innerHTML = "";
+                    form.reset();
+                }
+            }
+        }
+        xmlhttp.open("GET", "/users/queryuser/" + id, true);
+        xmlhttp.send();
+    }
+    $('#mdlpassword,#mdlpassword2').on('input', function () {
+        const password = $('#mdlpassword').val();
+        const password2 = $('#mdlpassword2').val();
+        if (password === password2) {
+            $('#mdlpassword').removeClass('is-invalid');
+            $('#mdlpassword').addClass('is-valid');
+            $('#mdlpassword2').removeClass('is-invalid');
+            $('#mdlpassword2').addClass('is-valid');
+            document.getElementById("btnpassworchange").disabled = false;
+        } else {
+            $('#mdlpassword').removeClass('is-valid');
+            $('#mdlpassword').addClass('is-invalid');
+            $('#mdlpassword2').removeClass('is-valid');
+            $('#mdlpassword2').addClass('is-invalid');
+            document.getElementById("btnpassworchange").disabled = true;
+        }
+    });
+
+
+    $('#ModalPassUser').on('shown.bs.modal', function () {
+        $('#mdlpassword').trigger('focus');
+    });
+</script>

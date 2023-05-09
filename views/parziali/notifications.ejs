@@ -1,0 +1,62 @@
+<% if(success && success.length > 0){ %>
+<script>
+    $(document).ready(function () {
+        $.notify({
+            title: '<b>Perfetto!</b>',
+            message: '<%= success %>'
+        }, {
+            type: 'success',
+            delay: 1000,
+            allow_dismiss: true,
+            newest_on_top: true,
+            showProgressbar: false,
+            placement: {
+                from: "top",
+                align: "center"
+            },
+        });
+    });
+</script>
+<% } %>
+
+<% if(warning && warning.length > 0){ %>
+<script>
+    $(document).ready(function () {
+        $.notify({
+            title: '<b>Attenzione!</b>',
+            message: '<%= warning %>'
+        }, {
+            type: 'warning',
+            delay: 1000,
+            allow_dismiss: true,
+            newest_on_top: true,
+            showProgressbar: false,
+            placement: {
+                from: "top",
+                align: "center"
+            },
+        });
+    });
+</script>
+<% } %>
+
+<% if(error && error.length > 0){ %>
+<script>
+    $(document).ready(function () {
+        $.notify({
+            title: '<b>Errore!</b>',
+            message: '<%= error %>'
+        }, {
+            type: 'danger',
+            delay: 1000,
+            allow_dismiss: true,
+            newest_on_top: false,
+            showProgressbar: false,
+            placement: {
+                from: "top",
+                align: "center"
+            },
+        });
+    });
+</script>
+<% } %>

@@ -1,0 +1,559 @@
+<%- include("parziali/header.ejs")  %>
+
+<% if (err) { %>
+<div class="container">
+    <div class="row">
+        <div class="col-md-3"></div>
+        <div class="col-md-6">
+            <%- include("parziali/error.ejs")  %>
+        </div>
+        <div class="col-md-3"></div>
+    </div>
+</div>
+
+<% } else { %>
+
+<div class="jumbotron jumbotron-fluid">
+    <div class="container">
+        <h2 class="display-4">Elenco richieste dal <span
+                id="lbldata"><%-moment(datainizio,"YYYYMMDD").format("DD/MM/YYYY")%>&nbsp;al&nbsp;<%-moment(datafine,"YYYYMMDD").format("DD/MM/YYYY")%>
+            </span></h2>
+        <!-- <p class="lead">Inserire, rimuovere, spostare un articolo</p> -->
+    </div>
+</div>
+<div class="container">
+
+    <div class="row">
+        <div class="col-sm-1 col-md-3">
+        </div>
+        <div class="col-sm-10 col-md-6">
+            <br>
+            <legend>Ricerca parametri</legend>
+            <form action="/richieste/" id="form_search" name="form_search" method="post">
+                <div class="form-group">
+                    <label for="datefilter">Intervallo Date</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <div class="input-group-text">
+                                <i class="fa fa-calendar"></i>
+                            </div>
+                        </div>
+                        <input id="datefilter" name="datefilter" type="text" aria-describedby="datefilterHelpBlock"
+                            required="required" class="form-control">
+                    </div>
+                    <span id="datefilterHelpBlock" class="form-text text-muted"></span>
+                </div>
+                <div class="form-group row">
+                    <label class="col-4">Mostrare anche:</label>
+                    <div class="col-8">
+                        <div class="custom-control custom-checkbox custom-control-inline">
+                            <input name="chk_optionals_display" id="chk_optionals_display_0" type="checkbox"
+                                class="custom-control-input" value="L" onchange=" showhideadditionals();">
+                            <label for="chk_optionals_display_0" class="custom-control-label">Cancellati (L)</label>
+                        </div>
+                        <div class="custom-control custom-checkbox custom-control-inline">
+                            <input name="chk_optionals_display" id="chk_optionals_display_1" type="checkbox"
+                                class="custom-control-input" value="2" onchange=" showhideadditionals();">
+                            <label for="chk_optionals_display_1" class="custom-control-label">Elaborati (2)</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" style="text-align: center;">
+                    <button name="submit" type="submit" id="btncerca" name="btncerca"
+                        class="btn btn-primary btn-lg active">Mostra Risultati&nbsp;
+                        <i class="fas fa-search" aria-hidden="true">
+                        </i>
+                    </button>
+                </div>
+            </form>
+        </div>
+        <div class="col-sm-1 col-md-3">
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    var iniziopergrafici = '<%=moment(datainizio,"YYYYMMDD").format("DD/MM/YYYY")%>';
+    var finepergrafici = '<%=moment(datafine,"YYYYMMDD").format("DD/MM/YYYY")%>';
+    var datefilter = document.getElementById("datefilter");
+    datefilter.value = "";
+    datefilter.value = iniziopergrafici + " - " + finepergrafici;
+</script>
+<hr>
+<Legend>Tabella richieste</Legend>
+<table id="richiesteinMagazzino">
+    <thead>
+        <th>Codice</th>
+        <th>Descrizione</th>
+        <th>Ubicazioni</th>
+        <th>Qta</th>
+        <th>Note</th>
+        <th>Stock/CQ</th>
+        <th>Urgenza</th>
+        <th>Stato</th>
+        <th>Richiedente</th>
+        <th>Data Richiesta</th>
+        <th>Data Accettazione</th>
+        <th>Data Conclusione</th>
+        <th>Eseguito Da</th>
+        <th>Azioni</th>
+    </thead>
+    <tbody>
+        <% if (typeof dati != "undefined") { %>
+        <% dati.forEach(dato => { %>
+        <% if (dato.status == "0") { %>
+        <tr name="0">
+            <% } else if (dato.status == "1") { %>
+        <tr name="1" style="background-color: lightgreen;">
+            <% } else if (dato.status == "2" ) { %>
+        <tr name="2" hidden style="background-color: lightslategray;">
+            <% } else if (dato.status == "3") { %>
+        <tr name="3" hidden style="background-color: lightcoral;">
+            <% } else if (dato.status == "4") { %>
+        <tr name="4" hidden>
+            <% } else { %>
+        <tr name="error">
+            <% } %>
+            <td><%-dato.codice%></td>
+            <td><%-unescape(dato.description)%></td>
+            <td><%-dato.ubicazione %></td>
+            <td><%-dato.qta%></td>
+           <% if (dato.note==null || dato.note==="null") { %>
+            <td></td>
+            <% } else { %>
+              <td><%-unescape(dato.note)%></td>
+           <% } %>
+            <% if ( dato.hasOwnProperty("stock") && dato.stock != null  && dato.stock.hasOwnProperty("LABST") && dato.stock.hasOwnProperty("INSME")) { %>
+            <td>Stock:&nbsp;<%-parseInt(dato.stock.LABST)%> <br> CQ:&nbsp;<%-parseInt(dato.stock.INSME) %>
+            </td>
+            <% } else { %>
+            <td>----</td>
+            <% } %>
+
+            <td><%-dato.urgenza %> </td>
+            <%if(dato.status == "1" && dato.status == 1){%>
+            <td>
+                In lav
+            </td>
+            <% }else if(dato.status == "2" && dato.status == 2){ %>
+            <td style="color:green">
+                Eseguito
+            </td>
+            <% }else if(dato.status == "3" && dato.status== 3){ %>
+            <td style="color:red">
+                Canc/Rif
+            </td>
+            <%} else if(dato.status == "0" && dato.status== 0) { %>
+            <td>
+                Inviato
+            </td>
+            <%} else if(dato.status == "4" && dato.status == 4) { %>
+            <td>
+                Annullato dall'richiedente
+            </td>
+            <% }else{ %>
+            <td>Stato mancante</td>
+            <% } %>
+            <td><%-dato.richiedente.username%></td>
+            <td><%-moment(dato.data, "YYYYMMDD").format("DD/MM/YYYY")%> - <%-dato.ora%></td>
+            <td>
+                <% if (parseInt(dato.status)>0 && parseInt(dato.status)<3) { %>
+                <%-moment(dato.data_accettazione, "YYYYMMDD").format("DD/MM/YYYY")%> - <%-dato.ora_accettazione%>
+                <% } %>
+            </td>
+            <td>
+                <% if (parseInt(dato.status)>1 && parseInt(dato.status)<3) { %>
+                <%-moment(dato.data_conclusione, "YYYYMMDD").format("DD/MM/YYYY")%> - <%-dato.ora_conclusione%>
+                <% } %>
+            </td>
+            <% if (typeof dato.rispondente != "undefined" && dato.rispondente) { %>
+            <% if (typeof dato.rispondente.username != "undefined") { %>
+            <td><%-dato.rispondente.username%></td>
+            <% }  else { %>
+            <td></td>
+            <% } %>
+            <% } else { %>
+            <td></td>
+            <% } %>
+            <td>
+                <div class="btn-group" role="group" aria-label="Azioni su questa richiesta">
+                    <% if (parseInt(dato.status) == 0) { %>
+                    <button type="button" class="btn btn-success" name="accept" id="<%=dato._id%>" title=" Accetta
+                        richiesta"><i class="fa fa-lock" aria-hidden="true"></i></button>
+                    <% } else if (parseInt(dato.status) == 1) { %>
+                    <button type="button" class="btn btn-warning" name="release" id="<%=dato._id%>"
+                        title="Libera richiesta"><i class="fa fa-unlock" aria-hidden="true"></i>
+                        </i></button>
+                    <% } else { %>
+                    <button disabled type="button" class="btn btn-secondary" title="Libera richiesta"><i
+                            class="fa fa-unlock" aria-hidden="true"></i>
+                        </i></button>
+                    <% } %>
+                    <% if (parseInt(dato.status) == 0) { %>
+                    <button type="button" class="btn btn-primary" name="transfer" id="<%=dato._id%>" title=" Trasferisci
+                        ad altro magazzino"><i class="fas fa-exchange-alt"></i></button>
+                    <% } else { %>
+                    <button disabled type="button" class="btn btn-secondary" title="Trasferisci ad altro magazzino"><i
+                            class="fas fa-exchange-alt"></i></button>
+                    <% } %>
+                    <% if (parseInt(dato.status) == 0) { %>
+                    <button type="button" class="btn btn-danger" name="delete" id="<%=dato._id%>" title=" Annulla
+                        richiesta"><i class="fa fa-trash" aria-hidden="true"></i></button>
+                    <% } else { %>
+                    <button disabled class="btn btn-secondary" title="Non puoi cancellare questa richiesta"><i
+                            class="fa fa-trash" aria-hidden="true"></i></button>
+                    <% } %>
+                </div>
+            </td>
+        </tr>
+        <% }) %>
+        <% } %>
+    </tbody>
+    <tfoot>
+        <th>Codice</th>
+        <th>Descrizione</th>
+        <th>Ubicazioni</th>
+        <th>Qta</th>
+        <th>Note</th>
+        <th>Stock/CQ</th>
+        <th>Urgenza</th>
+        <th>Stato</th>
+        <th>Richiedente</th>
+        <th>Data Richiesta</th>
+        <th>Data Accettazione</th>
+        <th>Data Conclusione</th>
+        <th>Eseguito Da</th>
+        <th>Azioni</th>
+    </tfoot>
+</table>
+
+<script>
+    $(document).ready(function () {
+        $('table').DataTable({
+            dom: 'Bfrtip',
+            paging: false,
+            "bInfo": false,
+            buttons: [{
+                extend: "print",
+                exportOptions: {
+                    columns: ':visible',
+                    rows: ':visible'
+                },
+                className: "btn-primary",
+                text: '<i class="fa fa-print">&nbsp;</i>Stampa',
+                customize: function (win) {
+                    var last = null;
+                    var current = null;
+                    var bod = [];
+                    var css = '@page { size: landscape; }',
+                        head = win.document.head || win.document.getElementsByTagName(
+                            'head')[0],
+                        style = win.document.createElement('style');
+                    style.type = 'text/css';
+                    style.media = 'print';
+                    if (style.styleSheet) {
+                        style.styleSheet.cssText = css;
+                    } else {
+                        style.appendChild(win.document.createTextNode(css));
+                    };
+                    head.appendChild(style);
+                }
+            }, ],
+            "responsive": false,
+            "language": {
+                "sEmptyTable": "Nessun dato presente nella tabella",
+                "sInfo": "Vista da _START_ a _END_ di _TOTAL_ elementi",
+                "sInfoEmpty": "Vista da 0 a 0 di 0 elementi",
+                "sInfoFiltered": "(filtrati da _MAX_ elementi totali)",
+                "sInfoPostFix": "",
+                "sInfoThousands": ".",
+                "sLengthMenu": "Visualizza _MENU_ elementi",
+                "sLoadingRecords": "Caricamento...",
+                "sProcessing": "Elaborazione...",
+                "sSearch": "Cerca:",
+                "sZeroRecords": "La ricerca non ha portato alcun risultato.",
+                "oPaginate": {
+                    "sFirst": "Inizio",
+                    "sPrevious": "Precedente",
+                    "sNext": "Successivo",
+                    "sLast": "Fine"
+                },
+                "oAria": {
+                    "sSortAscending": ": attiva per ordinare la colonna in ordine crescente",
+                    "sSortDescending": ": attiva per ordinare la colonna in ordine decrescente"
+                }
+            },
+        });
+    });
+</script>
+
+<script>
+    function showhideadditionals() {
+        var btncanc = document.getElementById("chk_optionals_display_0");
+        var btnelab = document.getElementById("chk_optionals_display_1");
+        var cancellati = document.getElementsByName("3");
+        var annullati = document.getElementsByName("4");
+        var elaborati = document.getElementsByName("2");
+
+        if (btncanc.checked == true) {
+            for (let i = 0; i < cancellati.length; i++) {
+                cancellati[i].hidden = false;
+            };
+            for (let i = 0; i < annullati.length; i++) {
+                annullati[i].hidden = false;
+            };
+        } else {
+            for (let i = 0; i < cancellati.length; i++) {
+                cancellati[i].hidden = true;
+            };
+            for (let i = 0; i < annullati.length; i++) {
+                annullati[i].hidden = true;
+            };
+        };
+        if (btnelab.checked == true) {
+            for (let i = 0; i < elaborati.length; i++) {
+                elaborati[i].hidden = false;
+            };
+        } else {
+            for (let i = 0; i < elaborati.length; i++) {
+                elaborati[i].hidden = true;
+            };
+        };
+    };
+</script>
+
+<link rel="stylesheet" type="text/css" href="/css/cdn/daterangepicker.css" />
+<script src="/scripts/cdn/moment.js"></script>
+<script src="/scripts/cdn/daterangepicker.min.js"></script>
+<script src="/scripts/cdn/daterangepicker.js"></script>
+
+
+
+<script>
+    $(document).ready(function () {
+
+        var accepts = document.getElementsByName("accept");
+        var releases = document.getElementsByName("release");
+        var transfers = document.getElementsByName("transfer");
+        var deletes = document.getElementsByName("delete");
+
+        $('button[name="accept"]').on("click", function () {
+            faccept(this);
+        });
+        $('button[name="release"]').on("click", function () {
+            frelease(this);
+        });
+        $('button[name="transfer"]').on("click", function () {
+            ftransfer(this);
+        });
+        $('button[name="delete"]').on("click", function () {
+            fdelete(this);
+        });
+
+
+
+
+
+        function faccept(button) {
+            
+            var id = button.id || null;
+            if (id) {
+                    $('#loading_animation').fadeIn();
+
+                var xmlhttp = new XMLHttpRequest();
+                xmlhttp.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 200) {
+                        var response = JSON.parse(this.responseText);
+                        console.log(response);
+                        if (response.type == "success") {
+                            window.location.reload();
+                        } else {
+                            $.notify({
+                                title: '<b>Errore!</b>',
+                                message: response.message
+                            }, {
+                                type: 'danger',
+                                delay: 1000,
+                                allow_dismiss: true,
+                                newest_on_top: false,
+                                showProgressbar: false,
+                                placement: {
+                                    from: "top",
+                                    align: "center"
+                                },
+                            });
+                        }
+                    };
+                };
+                xmlhttp.open("GET", "/api/" + "prendoincarico/" + id + "?userid=<%=currentUser._id%>",
+                    true);
+                xmlhttp.send();
+
+            } else {
+                $.notify({
+                    title: '<b>Errore!</b>',
+                    message: response.message
+                }, {
+                    type: 'danger',
+                    delay: 1000,
+                    allow_dismiss: true,
+                    newest_on_top: false,
+                    showProgressbar: false,
+                    placement: {
+                        from: "top",
+                        align: "center"
+                    },
+                });
+            };
+        };
+
+        function frelease(button) {
+            console.log("frelease", button);
+            var id = button.id || null;
+            if (id) {
+                    $('#loading_animation').fadeIn();
+
+                var xmlhttp = new XMLHttpRequest();
+                xmlhttp.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 200) {
+                        var response = JSON.parse(this.responseText);
+                        console.log(response);
+                        if (response.type == "success") {
+                            window.location.reload();
+                        } else {
+                            $.notify({
+                                title: '<b>Errore!</b>',
+                                message: response.message
+                            }, {
+                                type: 'danger',
+                                delay: 1000,
+                                allow_dismiss: true,
+                                newest_on_top: false,
+                                showProgressbar: false,
+                                placement: {
+                                    from: "top",
+                                    align: "center"
+                                },
+                            });
+                        }
+                    };
+                };
+                xmlhttp.open("GET", "/api/rilascio/" + id + "?userid=<%=currentUser._id%>",
+                    true);
+                xmlhttp.send();
+
+            } else {
+                $.notify({
+                    title: '<b>Errore!</b>',
+                    message: response.message
+                }, {
+                    type: 'danger',
+                    delay: 1000,
+                    allow_dismiss: true,
+                    newest_on_top: false,
+                    showProgressbar: false,
+                    placement: {
+                        from: "top",
+                        align: "center"
+                    },
+                });
+            };
+        };
+
+        function ftransfer(button) {
+            var id = button.id || null;
+            console.log(id)
+            if (id) {
+                    $('#loading_animation').fadeIn();
+
+                var xmlhttp = new XMLHttpRequest();
+                xmlhttp.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 200) {
+                        var response = JSON.parse(this.responseText);
+                        console.log(response);
+                        if (response.type == "success") {
+                            window.location.reload();
+                        } else {
+                            $.notify({
+                                title: '<b>Errore!</b>',
+                                message: response.message
+                            }, {
+                                type: 'danger',
+                                delay: 1000,
+                                allow_dismiss: true,
+                                newest_on_top: false,
+                                showProgressbar: false,
+                                placement: {
+                                    from: "top",
+                                    align: "center"
+                                },
+                            });
+                        }
+                    };
+                };
+                xmlhttp.open("POST", "/api/" + "spostarichiesta/?id=" + id +
+                    "&&utente=<%=currentUser.username%>",
+                    true);
+                xmlhttp.send();
+
+            } else {
+                $.notify({
+                    title: '<b>Errore!</b>',
+                    message: response.message
+                }, {
+                    type: 'danger',
+                    delay: 1000,
+                    allow_dismiss: true,
+                    newest_on_top: false,
+                    showProgressbar: false,
+                    placement: {
+                        from: "top",
+                        align: "center"
+                    },
+                });
+            };
+
+        };
+
+        function fdelete(button) {
+            var id = button.id || null;
+            if (id) {
+                    $('#loading_animation').fadeIn();
+
+                var xmlhttp = new XMLHttpRequest();
+                xmlhttp.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 200) {
+                        var response = JSON.parse(this.responseText);
+                        console.log(response);
+                    };
+                };
+                xmlhttp.open("GET", "/api/" + "elimino/" + id + "?userid=<%=currentUser._id%>",
+                    true);
+                xmlhttp.send();
+                window.location.reload();
+            } else {
+                $.notify({
+                    title: '<b>Errore!</b>',
+                    message: response.message
+                }, {
+                    type: 'danger',
+                    delay: 1000,
+                    allow_dismiss: true,
+                    newest_on_top: false,
+                    showProgressbar: false,
+                    placement: {
+                        from: "top",
+                        align: "center"
+                    },
+                });
+            };
+        };
+    });
+</script>
+
+
+
+<% } %>
+
+
+
+<%- include("parziali/footer.ejs")  %>

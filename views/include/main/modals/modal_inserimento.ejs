@@ -1,0 +1,321 @@
+<style>
+    .lblinput {
+        color: black;
+        font-size: large;
+        font-weight: bold;
+    }
+</style>
+
+<div class="modal fade bd-example-modal-lg" id="modalubicazioni" tabindex="-1" aria-labelledby="exampleModalLabel"
+    aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div style="background-color: lightgreen;" class="modal-header">
+                <h5 class="modal-title" id="modalubicazionititle">Dove lo vai ad ubicare?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="frminsert" name="frminsert" action="/ub/" method="POST">
+                    <br>
+                    <div class="form-group row">
+                        <label class="lblinput col-3 col-form-label" for="inputcodice">Magazzino</label>
+                        <div class="col-9">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <div class="input-group-text">
+                                        <i class="fas fa-warehouse"></i>
+                                    </div>
+                                </div>
+                                <select style="color: blue;" id="selectmagazzino" name="selectmagazzino"
+                                    class="custom-select" required="required">
+                                    <% for( let i = 0; i < magazzini.length; i++ ) { %>
+                                    <option value="<%=magazzini[i]['nome']%>"><%=magazzini[i]['nome']%></option>
+                                    <% } %>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="lblinput col-3 col-form-label" for="inputcodice">Codice Articolo</label>
+                        <div class="col-9">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <div class="input-group-text">
+                                        <i class="fa fa-cube"></i>
+                                    </div>
+                                </div>
+                                <input style="color: blue;" maxlength="30" autocomplete="off" id="inputcodice"
+                                    name="inputcodice" type="text" required="required" class="form-control">
+                            </div>
+                            <div class="input-group" style="text-align: center;">
+                                <span id=mdldescrizione></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="divdescrizione" hidden class="form-group row">
+                        <label class="lblinput col-3 col-form-label" for="inputdescrizione">Descrizione</label>
+                        <div class="col-9">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <div class="input-group-text">
+                                        <i class="fas fa-font"></i> </div>
+                                </div>
+                                <input style="color: blue;" maxlength="50" id="inputdescrizione" name="inputdescrizione"
+                                    type="text" aria-describedby="inputdescrizioneHelpBlock" class="form-control">
+                            </div>
+                            <span id="inputdescrizioneHelpBlock" class="form-text text-muted">Come indicato su
+                                documento.</span>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="lblinput col-3 col-form-label" for="inputubicazione">Ubicazione</label>
+                        <div class="col-9">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <div class="input-group-text">
+                                        <i class="fa fa-map-marker"></i>
+                                    </div>
+                                </div>
+                                <input maxlength="5" style="color: blue;" id="inputubicazione" name="inputubicazione"
+                                    type="text" aria-describedby="inputubicazioneHelpBlock" class="form-control">
+                            </div>
+                            <span id="inputubicazioneHelpBlock" class="form-text text-muted">Come indicato
+                                sull'etichetta.</span>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="lblinput col-3 col-form-label" for="inputquantita">Quantità</label>
+                        <div class="col-9">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <div class="input-group-text">
+                                        <i class="fas fa-box"></i> </div>
+                                </div>
+                                <input style="color: blue;" id="inputquantita" name="inputquantita" type="number"
+                                    value="0" aria-describedby="inputquantitaHelpBlock" class="form-control">
+                            </div>
+                            <span id="inputquantitaHelpBlock" class="form-text text-muted">Indicare la qta, o di default
+                                verrà segnata a 0</span>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="lblinput col-3 col-form-label" for="selectum">Unità misura</label>
+                        <div class="col-9">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <div class="input-group-text">
+                                        <i class="fas fa-warehouse"></i>
+                                    </div>
+                                </div>
+                                <select style="color: blue;" id="selectum" name="selectum"
+                                    class="custom-select" required="required">
+                                   
+                                        <option selected value="PZ">PZ</option>
+                                        <option value="NR">NR</option>
+                                        <option value="G">G</option>
+                                        <option value="KG">KG</option>
+                                        <option value="M">M</option>
+                                        <option value="MM">MM</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Chiudi</button>
+                <button type="button" class="btn btn-primary" id="btnservinsert" name="btnservinsert">
+                    <i class="fa fa-plus">&nbsp;</i>
+                    Aggiungi
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- urtenze data materiale descrizione utente qta stock libero stock cq ora inserimento poi bastq -->
+<script>
+    $("#inputubicazione").on('keyup change paste', function () {
+        var result = checkdati();
+    });
+
+    $("#inputcodice").on('keyup change paste', function () {
+        var result = checkdati();
+    });
+</script>
+
+
+
+<script>
+    $("#btnservinsert").on('click', function () {
+        var result = checkdati();
+        if (result == true || result == "true") {
+            document.getElementById("frminsert").submit();
+        };
+    });
+</script>
+
+
+
+<!-- check if dati are correttti for submit-->
+<script>
+    function checkdati() {
+        var codice = document.getElementById("inputcodice");
+        var ubicazione = document.getElementById("inputubicazione");
+        var tasto = document.getElementById("btnservinsert");
+        var descrizione = document.getElementById("inputdescrizione");
+        var quantita = document.getElementById("inputquantita");
+        tasto.disabled = true;
+        if (codice.value != null && codice.value != "") {
+            codice.classList.remove("is-invalid");
+            codice.classList.add("is-valid");
+            codice.value = codice.value.trim();
+            codice.value = codice.value.toUpperCase();
+            if (ubicazione.value != null && ubicazione.value != "") {
+                if (ubicazione.value.length == 5) {
+                    var result_substrin1 = checksubstring1(ubicazione.value[0]);
+                    var result_substrin2 =
+                        checksubstring2(ubicazione.value[1] + "" + ubicazione.value[2] + "" + ubicazione.value[3] + "" +
+                            ubicazione.value[4]);
+                    if (result_substrin1 & result_substrin2) {
+                        ubicazione.classList.remove("is-invalid");
+                        ubicazione.classList.add("is-valid");
+                        tasto.disabled = false;
+                        return true;
+                        //  document.getElementById("frminsert").submit();
+                    } else {
+                        ubicazione.classList.add("is-invalid");
+                        tasto.disabled = true;
+                        return false;
+                    };
+                } else {
+                    ubicazione.classList.add("is-invalid");
+                    ubicazione.value = ubicazione.value.substring(0, 5);
+                    tasto.disabled = true;
+                    return false;
+                }
+            } else {
+                ubicazione.classList.add("is-invalid");
+                ubicazione.value = ubicazione.value.substring(0, 5);
+                tasto.disabled = true;
+                return false;
+            };
+        } else {
+            codice.classList.add("is-invalid");
+            return false;
+        };
+        return false;
+    };
+
+    function checksubstring1(testo) {
+        let str = testo;
+        let regexp = /[a-zA-Z]/gi;
+        let arr1 = str.match(regexp);
+        if (arr1 == null) {
+            arr1 = new Array();
+        };
+        for (let i = 0; i < arr1.length; i++) {
+            if (arr1[i] == str) {
+                return true;
+            };
+        };
+        return false;
+    };
+
+    function checksubstring2(testo) {
+        if (isFinite(parseInt(testo)) && !isNaN(parseInt(testo))) {
+            return true;
+        };
+        return false;
+    };
+</script>
+
+
+<!--RICERCO I DETTAGLI IN ZMAT-->
+<script>
+    function ricerca_inzmat() {
+        var testo = document.getElementById('inputcodice');
+        var stringa = testo.value;
+        if (stringa) {
+            stringa = stringa.toUpperCase();
+        }
+        document.getElementById("modalubicazionititle").innerHTML = "Dove vuoi ubicare " + stringa + " ?";
+        var xmlhttp = new XMLHttpRequest();
+        var query = "materiale=" + stringa;
+        xmlhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                var response = JSON.parse(this.responseText);
+                if (response) {
+                    if (response.MATNR == 0000 || response.MATNR == "0000") {
+                        document.getElementById("mdldescrizione").innerHTML = response.MAKTX;
+                        document.getElementById("mdldescrizione").style.color = "red";
+                        document.getElementById("inputdescrizione").required = true;
+                        document.getElementById("divdescrizione").hidden = false;
+                    } else {
+                        document.getElementById("mdldescrizione").innerHTML = response.MAKTX;
+                        document.getElementById("mdldescrizione").style.color = "black";
+                        document.getElementById("inputdescrizione").required = false;
+                        document.getElementById("inputdescrizione").value = "";
+                        document.getElementById("divdescrizione").hidden = true;
+                    }
+                } else {
+                    document.getElementById("mdldescrizione").innerHTML = "";
+                    document.getElementById("mdldescrizione").style.color = "black";
+                    document.getElementById("inputdescrizione").required = false;
+                    document.getElementById("inputdescrizione").value = "";
+                    document.getElementById("divdescrizione").hidden = true;
+                }
+            }
+        };
+        xmlhttp.open("GET", "/principale/search_inzmat?" + query, true);
+        xmlhttp.send();
+    };
+
+    $("#inputcodice").on('keyup keydown keypress change paste', function () {
+        ricerca_inzmat();
+    });
+</script>
+
+
+<!-- COSA SUCCEDE ALL'APERTURA CHIUSURA DEL MODAL UBICAZIONE-->
+<script>
+    $('#modalubicazioni').on('shown.bs.modal', function () {
+        var user = "<%-currentUser.magazzino%>";
+        for (let i = 0; i < document.getElementById("selectmagazzino").options.length; i++) {
+            if (document.getElementById("selectmagazzino").options[i].value == user) {
+                document.getElementById("selectmagazzino").options[i].selected = true;
+                break;
+            };
+        };
+        if (document.getElementById("radio_0").checked == true) {
+            var testo = document.getElementById("search").value;
+            testo = testo.trim();
+            document.getElementById("inputcodice").value = testo;
+            document.getElementById("modalubicazionititle").innerHTML = "Dove vuoi ubicare " + testo + " ?";
+            ricerca_inzmat();
+            $('#inputubicazione').trigger('focus');
+            var tasto = document.getElementById("btnservinsert").disabled = true;
+        } else if (document.getElementById("radio_1").checked == true) {
+            $('#inputcodice').trigger('focus');
+            var testo = document.getElementById("search").value;
+            testo = testo.toUpperCase();
+            testo = testo.trim();
+            document.getElementById("inputubicazione").value = testo;
+            var tasto = document.getElementById("btnservinsert").disabled = true;
+        } else {
+            ricerca_inzmat();
+            $('#inputubicazione').trigger('focus');
+            var tasto = document.getElementById("btnservinsert").disabled = true;
+        };
+    });
+
+    $('#modalubicazioni').on('hidden.bs.modal', function () {
+        document.getElementById("inputcodice").value = null;
+        document.getElementById("inputubicazione").value = null;
+        document.getElementById("modalubicazionititle").innerHTML = null;
+        setTimeout(function () {
+            $('input[name="search"]').focus()
+        }, 500);
+    });
+</script>

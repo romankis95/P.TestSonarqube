@@ -1,0 +1,19 @@
+<link rel="stylesheet" href="/css/personale/loadingscreen.css">
+
+<div id="loading_animation">
+  <img id="loading-image" src="/ajax-loader.gif" alt="Loading..." />
+</div>
+
+<script>
+  $(document).ready(function () {
+    $('#loading_animation').fadeOut();
+  });
+  
+  $(document).on('submit', function () {
+    $('#loading_animation').fadeIn();
+  });
+
+  $("#loading-image").on('click', function () {
+    document.getElementById("loading_animation").hidden = true;
+  });
+</script>

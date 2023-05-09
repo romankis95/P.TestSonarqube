@@ -1,0 +1,127 @@
+<%- include("./../parziali/header.ejs")  %>
+<% if (err) { %>
+<%- include("./../parziali/error.ejs")  %>
+<% } else { %>
+<div class="jumbotron jumbotron-fluid">
+    <div class="container">
+        <h1 class="display-4">Utenti Magazzino Italtergi</h1>
+        <p class="lead">Inserire, rimuovere, un utente</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-1 col-md-3">
+        </div>
+        <div class="col-sm-10 col-md-6" align="center">
+            <button id="btnAddUser" name="btnAddUser" class="btn btn-primary btn-lg active" data-toggle="modal"
+                data-target="#modalAddUser">
+                <i class="fas fa-user-plus">&nbsp;</i>Aggiungi
+                Utente
+            </button>
+        </div>
+        <div class="col-sm-1 col-md-3">
+        </div>
+    </div>
+</div>
+
+<table id="tabellainventario" class="table-striped">
+    <thead>
+        <th>Utente</th>
+        <th>Nome Reale</th>
+        <th>Magazzino</th>
+        <th>Utente Amministratore*</th>
+        <th>Utente Magazziniere**</th>
+        <th>Azioni</th>
+    </thead>
+    <tbody>
+        <% for(let i = 0; i < users.length; i++) { %>
+        <% if (users[i].status == true) { %>
+        <tr>
+            <% } else { %>
+        <tr style="background-color: lightgray;">
+            <% } %>
+            <td><%= users[i].username %> </td>
+            <td><%= users[i].nomereale %> </td>
+            <td><%= users[i].magazzino %> </td>
+            <% if (users[i].isAdmin) { %>
+            <td>
+                <span style="color: green;">
+                    <i class="fas fa-check"></i>
+                </span>
+            </td>
+            <%}else{%>
+            <td>
+                <span style="color: red;">
+                    <i class="fas fa-times"></i>
+                </span>
+            </td>
+            <% } %>
+            <% if (users[i].isMagazziniere) { %>
+            <td>
+                <span style="color: green;">
+                    <i class="fas fa-check"></i>
+                </span>
+            </td>
+            <%} else {%>
+            <td>
+                <span style="color: red;">
+                    <i class="fas fa-times"></i>
+                </span>
+            </td>
+            <% } %>
+            <td>
+                <% if (typeof currentUser!== "undefined" && (currentUser.isAdmin || currentUser.magazzino == users[i].magazzino )) { %>
+                <% if (users[i].status == true) { %>
+                <a title="Disattiva utente" data-toggle="tooltip" data-placement="top" type="button"
+                    class="btn btn-primary" id="btnedit<%=users[i]._id%>" href="/users/disable/<%=users[i]._id%>"
+                    name="<%=users[i]._id%>">
+                    <i class="fas fa-pause"></i>
+                </a>
+                &nbsp;
+                <button id="btnAddUser" name="btnAddUser" class="btn btn-warning"
+                    onclick="userToUpdate('<%=users[i]._id%>')" data-toggle="modal" data-target="#ModalEditUser"><i
+                        class="fas fa-cog"></i>
+                </button>
+                &nbsp;
+                <button id="btnAddUser" name="btnAddUser" class="btn btn-warning"
+                    onclick="passUpdate('<%=users[i]._id%>')" data-toggle="modal" data-target="#ModalPassUser"><i
+                        class="fas fa-key"></i>
+                </button>
+                &nbsp;
+                <% } else { %>
+                <a title="Attiva utente" data-toggle="tooltip" data-placement="top" type="button"
+                    class="btn btn-success" id="btnedit<%=users[i]._id%>" href="/users/enable/<%=users[i]._id%>"
+                    name="<%=users[i]._id%>">
+                    <i class="fas fa-play"></i>
+                </a>
+                &nbsp;
+                <button type="button" class="btn btn-secondary">
+                    <i class="fas fa-cog"></i>
+                </button>
+                &nbsp;
+                <% } %>
+                <button id="btnDeleteUser" name="btnDeleteUser" class="btn btn-danger"
+                    onclick="userToDelete('<%=users[i]._id%>')" data-toggle="modal" data-target="#ModalDeleteUser"><i
+                        class="fas fa-trash"></i>
+                </button>
+                <% } %>
+            </td>
+        </tr>
+        <% } %>
+    </tbody>
+</table>
+
+
+
+
+<%- include('./partials/modalAddUser.ejs') %>
+<%- include('./partials/ModalPassUser.ejs') %>
+<%- include('./partials/ModalEditUser.ejs') %>
+<%- include('./partials/ModalDeleteUser.ejs') %> 
+<%- include('./partials/datatable.ejs') %>
+
+
+
+<% } %>
+<%- include("./../parziali/footer.ejs")  %>

@@ -1,0 +1,160 @@
+<%- include("./../parziali/header.ejs")  %>
+<% if (err) { %>
+<%- include("./../parziali/error.ejs")  %>
+<% } else { %>
+<div class="jumbotron jumbotron-fluid">
+    <div class="container">
+        <h1 class="display-4">Magazzini Italtergi</h1>
+        <p class="lead">Inserire, rimuovere, un magazzino</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-1 col-md-3">
+        </div>
+        <div class="col-sm-10 col-md-6" align="center">
+            <button id="btnAddWarehouse" name="btnAddWarehouse" class="btn btn-primary btn-lg active"
+                data-toggle="modal" data-target="#modalAddWareHouse"><i class="fas fa-warehouse">&nbsp;</i>Aggiungi
+                Magazzino
+            </button>
+        </div>
+        <div class="col-sm-1 col-md-3">
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<div class="modal fade" id="modalAddWareHouse" tabindex="-1" role="dialog" aria-labelledby="modalAddWareHouseTitle"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Aggiungi nuovo magazzino</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Chiudi">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="frminserwarehouse" action="/users/addwarehouse" method="post" autocomplete="off">
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <label class="col-4 col-form-label" for="mdlwarehouseusername">Nome magazzino</label>
+                        <div class="col-8">
+                            <input id="mdlwarehouseusername" minlength="4" maxlength="12" name="mdlwarehouseusername"
+                                type="text" class="form-control" required="required">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Chiudi</button>
+                    <button type="submit" class="btn btn-primary">Crea magazzino</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
+        $(function () {
+            $('#frminserwarehouse :input').on("input", function () {
+                var username = document.getElementById("mdlwarehouseusername").value;
+                username = username.trim();
+                username = username.replace(/[^0-9a-z]/gi, '');
+                username = username.toUpperCase();
+                document.getElementById("mdlwarehouseusername").value = username;
+            }).trigger("input");
+        });
+    </script>
+
+</div>
+
+<script>
+    $('#modalAddWareHouse').on('shown.bs.modal', function () {
+        $('#mdlwarehouseusername').trigger('focus')
+    })
+</script>
+
+
+<table id="tabellainventario" class="table-striped">
+    <thead>
+        <th>Magazzino</th>
+        <td>Data creazione</td>
+        <th>Azioni</th>
+    </thead>
+    <tbody>
+        <% for( let i = 0; i < magazzini.length; i++ ) { %>
+        <tr>
+            <td><%-magazzini[i]["nome"]%></td>
+            <td><%-moment(magazzini[i]["data"], ('YYYYMMDDHHmmss')).format("DD/MM/YYYY HH:mm:ss")%></td>
+            <td><a class="btn btn-danger" href="/users/removewarehouse/<%=magazzini[i]["_id"]%> "><i
+                        class="fas fa-trash"></i></a></td>
+        </tr>
+        <% } %>
+    </tbody>
+    <tfoot>
+        <th></th>
+        <th></th>
+        <th></th>
+    </tfoot>
+</table>
+
+
+
+<script>
+    $(document).ready(function () {
+        $('#tabellainventario').DataTable({
+            dom: 'Bfrtip',
+            order: [
+                [0, "asc"],
+                [1, "asc"],
+                [2, "asc"]
+            ],
+            buttons: [
+                'copy', 'csv', 'excel', 'pdf', 'print'
+            ],
+            "buttons": {
+                "buttons": [{
+                    extend: 'excelHtml5',
+                    text: '<i class="fas fa-file-excel"></i> Esporta in Excel',
+                    titleAttr: 'Esporta in Excel',
+                    "className": 'btn btn-success'
+                }, ],
+                "dom": {
+                    "button": {
+                        "className": 'btn'
+                    }
+                },
+            },
+            "language": {
+                "sEmptyTable": "Nessun dato presente nella tabella",
+                "sInfo": "Vista da _START_ a _END_ di _TOTAL_ elementi",
+                "sInfoEmpty": "Vista da 0 a 0 di 0 elementi",
+                "sInfoFiltered": "(filtrati da _MAX_ elementi totali)",
+                "sInfoPostFix": "",
+                "sInfoThousands": ".",
+                "sLengthMenu": "Visualizza _MENU_ elementi",
+                "sLoadingRecords": "Caricamento...",
+                "sProcessing": "Elaborazione...",
+                "sSearch": "Cerca:",
+                "sZeroRecords": "La ricerca non ha portato alcun risultato.",
+                "oPaginate": {
+                    "sFirst": "Inizio",
+                    "sPrevious": "Precedente",
+                    "sNext": "Successivo",
+                    "sLast": "Fine"
+                },
+                "oAria": {
+                    "sSortAscending": ": attiva per ordinare la colonna in ordine crescente",
+                    "sSortDescending": ": attiva per ordinare la colonna in ordine decrescente"
+                }
+            },
+            "lengthMenu": [
+                [15, 35, 50, -1],
+                [15, 35, 50, "All"]
+            ],
+        });
+    });
+</script>
+<% } %>
+<%- include("./../parziali/footer.ejs")  %>

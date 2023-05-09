@@ -1,0 +1,478 @@
+<%- include("parziali/header.ejs")  %>
+<script>
+    $(document).on("keypress", 'form', function (e) {
+        var code = e.keyCode || e.which;
+        if (code == 13) {
+            e.preventDefault();
+            return false;
+        }
+    });
+</script>
+<div class="jumbotron jumbotron-fluid d-none d-sm-block">
+    <div class="container">
+        <h1 id="h1jumbo" class="display-4">Trova</h1>
+        <p class="lead">Cercare un articolo</p>
+        <!-- <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#exampleModal">
+            Istruzioni
+        </button> -->
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12 col-md-2 col-lg-3">
+        </div>
+        <div class="col-sm-12 col-md-8 col-lg-6">
+            <form id="frminstert" onsubmit="return false;">
+                <div class="form-group">
+                    <label for="search">Ricerca</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <div id="icon1" class="input-group-text">
+                                <i class="fa fa-search"></i>
+                            </div>
+                        </div>
+                        <input id="search" name="search" type="text" aria-describedby="searchHelpBlock"
+                            required="required" class="form-control" list="listacodici" autocomplete="off" autofocus>
+                        <div class="input-group-append">
+                            <div class="input-group-text" id="btntrash" onclick="resetfunction();">
+                                <i class="fas fa-times"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <datalist hidden class='form-control' name="listacodici" id='listacodici'></datalist>
+                        <span id="searchHelpBlock" class="form-text text-muted"></span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-4">Cerca per</label>
+                    <div class="col-8">
+                        <div class="custom-control custom-radio custom-control-inline">
+                            <input name="radio" id="radio_0" type="radio" class="custom-control-input" value="0"
+                                required="required" checked="checked">
+                            <label for="radio_0" class="custom-control-label">Codice</label>
+                        </div>
+                        <div class="custom-control custom-radio custom-control-inline">
+                            <input name="radio" id="radio_1" type="radio" class="custom-control-input" value="1"
+                                required="required">
+                            <label for="radio_1" class="custom-control-label">Ubicazione</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-4">Cerca </label>
+                    <div class="col-8">
+                        <div class="custom-control custom-radio custom-control-inline">
+                            <input name="rdbmagazzino" id="rdbmagazzino_0" type="radio" class="custom-control-input"
+                                value="0" required="required" checked="checked">
+                            <label for="rdbmagazzino_0" class="custom-control-label">Nel mio magazzino</label>
+                        </div>
+                        <div class="custom-control custom-radio custom-control-inline">
+                            <input name="rdbmagazzino" id="rdbmagazzino_1" type="radio" class="custom-control-input"
+                                value="1" required="required">
+                            <label for="rdbmagazzino_1" class="custom-control-label">In tutti i magazzini</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                </div>
+            </form>
+            <div class="col text-center">
+                <button class="btn" id="btninsert" data-toggle="modal" data-target="#modalubicazioni"
+                    name="btninsert"></button>
+            </div>
+        </div>
+        <div class="col-sm-12 col-md-2 col-lg-3"></div>
+    </div>
+</div>
+
+<!-- TABLE HTML INIT-->
+<div class="container">
+    <div class="row">
+        <div class="col-md-12 ">
+            <table class="table-striped">
+                <thead>
+                    <th>Codice</th>
+                    <th>Descrizione</th>
+                    <th>Magazzino</th>
+                    <th>Ubicazione</th>
+                    <th>Quantità</th>
+                    <th>Data</th>
+                    <th>Azioni</th>
+                </thead>
+                <tbody id="tbody_append">
+                </tbody>
+                <tfoot>
+                    <th>Codice</th>
+                    <th>Descrizione</th>
+                    <th>Magazzino</th>
+                    <th>Ubicazione</th>
+                    <th>Quantità</th>
+                    <th>Data</th>
+                    <th>Azioni</th>
+                </tfoot>
+            </table>
+            <hr>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $('input:radio[name="radio"]').on('change', function () {
+        if (this.value == 1) {
+            search_bypos();
+            actualsearch();
+        } else {
+            search_bycode();
+            actualsearch();
+        };
+    });
+    $('input:radio[name="rdbmagazzino"]').on('change', function () {
+        if (this.value == 1) {
+            all_magazzini();
+            actualsearch();
+        } else {
+            my_magazzino();
+            actualsearch();
+        };
+    });
+    search_bycode();
+
+
+    function search_bycode() {
+        var tbody_append = document.getElementById("tbody_append");
+        tbody_append.innerHTML = "";
+        var search = document.getElementById("search");
+        search.value = "";
+        //search.placeholder = "Digita il codice...";
+        search.style.color = "green";
+        search.maxLength = 100;
+
+        document.getElementById("icon1").style.backgroundColor = "lightgreen";
+        var btnubica = document.getElementById("btninsert");
+        btnubica.classList.add("btn-success");
+        btnubica.classList.remove("btn-primary");
+        btnubica.innerHTML = '<i class="fas fa-plus-square"></i> Ubica questo <u>CODICE</u></button>';
+        document.getElementById("searchHelpBlock").innerHTML = "Digita o spara il codice per trovarlo in magazzino....";
+        search.focus();
+    };
+
+    function search_bypos() {
+        var tbody_append = document.getElementById("tbody_append");
+        tbody_append.innerHTML = "";
+        var search = document.getElementById("search");
+        search.value = "";
+        var btnubica = document.getElementById("btninsert");
+        btnubica.classList.add("btn-primary");
+        btnubica.classList.remove("btn-success");
+        btnubica.innerHTML = '<i class="fas fa-plus-square"></i> Ubica in questa <u>POSIZIONE</u></button>';
+        document.getElementById("searchHelpBlock").innerHTML = "Digita la posizione per sapere cosa contiene....";
+        var val = search.value;
+        val = val.trim();
+        search.maxLength = 5;
+
+        if (val.length > 5) {
+            search.value = val[0] + "" + val[1] + "" + val[2] + "" + val[3] + "" + val[4] + "";
+        };
+        //search.placeholder = "Digita l'ubicazione...";
+        document.getElementById("icon1").style.backgroundColor = "lightblue";
+        search.style.color = "blue";
+        search.focus();
+    };
+
+    function my_magazzino() {
+        var search = document.getElementById("search");
+        search.focus();
+    };
+
+    function all_magazzini() {
+        var search = document.getElementById("search");
+        search.focus();
+    };
+</script>
+
+
+<!-- script di ricerca sul server e generazione della tabella -->
+<script>
+    document.getElementById("btninsert").disabled = true;
+
+    $("#search").on('input', function () {
+        actualsearch();
+    });
+
+    function actualsearch() {
+        var ricerca = document.getElementById("search");
+        var tbody_append = document.getElementById("tbody_append");
+        var btnreset = document.getElementById("btntrash");
+        var datalist = document.getElementById("listacodici");
+
+        var query = $("#frminstert").serialize();
+        query = query.toUpperCase();
+        datalist.innerHTML = "";
+        if (ricerca.value == "" || ricerca.value == null) {
+            datalist.innerHTML = "";
+            btnreset.style.color = "black";
+            tbody_append.innerHTML = "";
+            document.getElementById("btninsert").disabled = true;
+        } else {
+            btnreset.style.color = "red";
+            document.getElementById("btninsert").disabled = false;
+
+            if (document.getElementById("radio_0").checked == true) {
+                // qui se eseguo la ricerca per codice
+                var xmlhttp = new XMLHttpRequest();
+                xmlhttp.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 200) {
+                        var response = JSON.parse(this.responseText);
+                        var codici_append = "";
+                        if (typeof response !== "undefined" && response != null) {
+                            if (response.length > 0) {
+                                for (let i = 0; i < response.length; i++) {
+                                    codici_append += "<option ";
+                                    codici_append += "value='" + response[i].articolo + "'>";
+                                    codici_append += response[i].articolo;
+                                    codici_append += "</option>"
+                                };
+                                datalist.innerHTML = codici_append;
+                                if (response[0].articolo == ricerca.value.toUpperCase()) {
+                                    var texture = "";
+                                    for (let i = 0; i < response.length; i++) {
+                                        texture += "<tr id='tr" + response[i]._id + "'>";
+                                        texture += "<td>";
+                                        texture += response[i].articolo;
+                                        texture += "</td>";
+                                        texture += "<td>";
+                                        texture += response[i].descrizione;
+                                        texture += "</td>";
+                                        texture += "<td>";
+                                        texture += response[i].magazzino;
+                                        texture += "</td>";
+                                        texture += "<td>";
+                                        texture += response[i].armadio + "" + response[i].ripiano + "" + response[i]
+                                            .posizione;
+                                        texture += "</td>";
+                                        texture += "<td>";
+                                        texture += response[i].quantita;
+                                        texture += "</td>";
+                                        texture += "<td id='data" + response[i]._id + "'>";
+                                        texture += response[i].datainserimento;
+                                        texture += "</td>";
+                                        texture += "<td>";
+                                        texture +=
+                                            '<div class="btn-group" role="group" aria-label="Basic example">';
+                                        texture +=
+                                            '<button type="button" hidden class="btn btn-success" id="btnupdate" onclick="fupdate(this)" name="' +
+                                            response[i]._id + '">';
+                                        texture += '<i class="fa fa-plus"></i>'
+                                        texture += '</button>'
+                                        if (response[i].magazzino == "<%-currentUser.magazzino%>" ||
+                                            "<%-currentUser.isAdmin%>" == "true") {
+
+                                            texture +=
+                                                '<button type="button" id="btndelete" onclick="fdelete(this)" name="' +
+                                                response[i]._id + '" class="btn btn-danger">';
+                                            texture += '<i class="fa fa-trash"></i>';
+                                            texture += '</button>';
+                                        } else {
+
+                                            texture +=
+                                                '<button type="button" hidden id="btndelete" onclick="fdelete(this)" name="' +
+                                                response[i]._id + '" class="btn btn-danger">';
+                                            texture += '<i class="fa fa-trash"></i>';
+                                            texture += '</button>';
+                                        };
+                                        texture += ' </div>'
+                                        texture += "</td>";
+                                        texture += "</tr>";
+                                    }
+                                    tbody_append.innerHTML = texture;
+                                    datalist.innerHTML = '';
+                                } else {
+                                    tbody_append.innerHTML = null;
+                                };
+                            } else {
+                                datalist.innerHTML = null;
+                                tbody_append.innerHTML = null;
+
+                            };
+                        } else {
+                            $.notify({
+                                title: '<b>Errore!</b>',
+                                message: 'Si è verificato un errore, avviso Roman!'
+                            }, {
+                                type: 'danger',
+                                delay: 1000,
+                                allow_dismiss: true,
+                                newest_on_top: true,
+                                showProgressbar: false,
+                                placement: {
+                                    from: "top",
+                                    align: "center"
+                                },
+                            });
+                        };
+                    };
+                };
+                xmlhttp.open("GET", "/principale/search?" + query, true);
+                xmlhttp.send();
+            } else if (document.getElementById("radio_1").checked == true) {
+                //qui se eseguo quella per magazzino
+                var xmlhttp = new XMLHttpRequest();
+                xmlhttp.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 200) {
+                        var response = JSON.parse(this.responseText);
+                        var codici_append = "";
+                        if (typeof response !== "undefined" && response != null) {
+                            if (response.length > 0) {
+                                for (let i = 0; i < response.length; i++) {
+                                    codici_append += "<option ";
+                                    codici_append += "value='" + response[i].ubicazione + "'>";
+                                    codici_append += response[i].ubicazione;
+                                    codici_append += "</option>"
+                                };
+                                datalist.innerHTML = codici_append;
+                                var texture = "";
+                                for (let i = 0; i < response.length; i++) {
+                                    texture += "<tr id='tr" + response[i]._id + "'>";
+                                    texture += "<td>";
+                                    texture += response[i].articolo;
+                                    texture += "</td>";
+                                    texture += "<td>";
+                                    texture += response[i].descrizione;
+                                    texture += "</td>";
+                                    texture += "<td>";
+                                    texture += response[i].magazzino;
+                                    texture += "</td>";
+                                    texture += "<td>";
+                                    texture += response[i].armadio;
+                                    texture += "</td>";
+                                    texture += "<td>";
+                                    texture += response[i].ripiano;
+                                    texture += "</td>";
+                                    texture += "<td>";
+                                    texture += response[i].posizione;
+                                    texture += "</td>";
+                                    texture += "<td id='data" + response[i]._id + "'>";
+                                    texture += response[i].datainserimento;
+                                    texture += "</td>";
+                                    texture += "<td>";
+                                    texture += '<div class="btn-group" role="group" aria-label="Basic example">';
+                                    texture +=
+                                        '<button type="button" hidden class="btn btn-success" id="btnupdate" onclick="fupdate(this)" name="' +
+                                        response[i]._id + '">';
+                                    texture += '<i class="fa fa-plus"></i>'
+                                    texture += '</button>'
+                                    if (response[i].magazzino == "<%-currentUser.magazzino%>" ||
+                                        "<%-currentUser.isAdmin%>" == "true") {
+
+                                        texture +=
+                                            '<button type="button"  id="btndelete" onclick="fdelete(this)" name="' +
+                                            response[i]._id + '"class="btn btn-danger">';
+                                        texture += '<i class="fa fa-trash"></i>';
+                                        texture += '</button>';
+                                    } else {
+
+                                        texture +=
+                                            '<button type="button" hidden id="btndelete" onclick="fdelete(this)" name="' +
+                                            response[i]._id + '" class="btn btn-danger">';
+                                        texture += '<i class="fa fa-trash"></i>';
+                                        texture += '</button>';
+                                    };
+                                    texture += ' </div>'
+                                    texture += "</td>";
+                                    texture += "</tr>";
+                                }
+                                tbody_append.innerHTML = texture;
+                                if (response[0].ubicazione == ricerca.value.toUpperCase()) {
+                                    datalist.innerHTML = '';
+                                }
+
+                            } else {
+                                datalist.innerHTML = null;
+                                tbody_append.innerHTML = null;
+
+                            };
+                        } else {
+                            $.notify({
+                                title: '<b>Errore!</b>',
+                                message: 'Si è verificato un errore, avviso Roman!'
+                            }, {
+                                type: 'danger',
+                                delay: 1000,
+                                allow_dismiss: true,
+                                newest_on_top: true,
+                                showProgressbar: false,
+                                placement: {
+                                    from: "top",
+                                    align: "center"
+                                },
+                            });
+                        };
+                    };
+                };
+                xmlhttp.open("GET", "/principale/search?" + query, true);
+                xmlhttp.send();
+            } else {
+                //qui non dovrebbe mai andarci ma nel dubbio metto un handler per chi si mette a giocare con l'html
+                $.notify({
+                    title: '<b>Errore!</b>',
+                    message: 'Si è verificato un errore, avviso Roman!'
+                }, {
+                    type: 'danger',
+                    delay: 1000,
+                    allow_dismiss: true,
+                    newest_on_top: true,
+                    showProgressbar: false,
+                    placement: {
+                        from: "top",
+                        align: "center"
+                    },
+                });
+            };
+
+        };
+    };
+
+    function resetfunction() {
+        document.getElementById("search").value = "";
+        document.getElementById("tbody_append").innerHTML = null;
+        document.getElementById("search").focus();
+        var btnreset = document.getElementById("btntrash");
+        btnreset.style.color = "black";
+    };
+</script>
+
+
+
+
+
+
+
+
+
+
+<!-- apre chiude il modal delle istruzioni-->
+<%- include("include/main/modals/modal_istruzioni.ejs")  %>
+<!-- apre chiude il modal inserimento (quello che permette di inserire un codice)-->
+<%- include("include/main/modals/modal_inserimento.ejs")  %>
+<!-- script che agisce quando apro o chiudo un modal-->
+<%# include("include/main/scripts/show_hide_modals.ejs")  %>
+<!-- script installazione Datatable -->
+<%- include("include/main/scripts/datatable.ejs")  %>
+<!-- script che aggiorna la data di un ubicazione -->
+<%- include("include/main/scripts/update_ubicazione.ejs")  %>
+<!--script che cancella un ubicazione-->
+<%- include("include/main/scripts/delete_ubicazione.ejs")  %>
+
+
+<!-- stuling del jumbotron-->
+<style>
+    .jumbotron {
+        min-height: 250px;
+        max-height: 250px;
+    }
+</style>
+
+<%- include("parziali/footer.ejs")  %>

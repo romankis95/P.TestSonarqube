@@ -1,0 +1,138 @@
+<%- include("parziali/header.ejs")  %>
+<div class="container">
+    <div class="row">
+        <div class="col-sm-1 col-md-3">
+        </div>
+        <div class="col-sm-10 col-md-6">
+            <br>
+            <legend>Ricerca parametri</legend>
+            <form action="/movimenti" id="form_search" name="form_search" method="post">
+                <div class="form-group">
+                    <label for="datefilter">Intervallo Date</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <div class="input-group-text">
+                                <i class="fa fa-calendar"></i>
+                            </div>
+                        </div>
+                        <input id="datefilter" name="datefilter" type="text" aria-describedby="datefilterHelpBlock"
+                            required="required" class="form-control">
+                    </div>
+                    <span id="datefilterHelpBlock" class="form-text text-muted"></span>
+                </div>
+                <hr>
+                <div class="form-group">
+                    <label for="materiale">Materiale</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <div class="input-group-text">
+                                <i class="fa fa-briefcase"></i>
+                            </div>
+                        </div>
+                        <input id="materiale" name="materiale" type="text" class="form-control">
+                    </div>
+                </div>
+                <div class="form-group" align="center">
+                    <button name="submit" type="submit" id="btncerca" name="btncerca"
+                        class="btn btn-primary btn-lg active">Mostra Movimenti&nbsp;
+                        <i class="" aria-hidden="true">
+                        </i>
+                    </button>
+                </div>
+            </form>
+        </div>
+        <div class="col-sm-1 col-md-3">
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    var iniziopergrafici = "<%=inizio%>";
+    var finepergrafici = "<%=fine%>";
+    var datefilter = document.getElementById("datefilter");
+    datefilter.value = "";
+    datefilter.value = iniziopergrafici + " - " + finepergrafici;
+    if ('<%=materiale%>' != "" && '<%=materiale%>' != null) {
+        var materiale = document.getElementById("materiale");
+        materiale.value = '<%=materiale%>';
+    }
+</script>
+
+
+<hr>
+<% if (materiale != "" && materiale != null) { %>
+<legend>Tutti i movimenti dal <%=inizio%> al <%=fine%> per il codice <%= materiale %> </legend>
+<% } else { %>
+<legend>Tutti i movimenti dal <%=inizio%> al <%=fine%> per tutti i codici </legend>
+<% } %>
+
+<table>
+    <thead>
+        <th>Data</th>
+        <th>Codice Articolo</th>
+        <th>Movimento</th>
+        <th>Ubicazione</th>
+        <th>Quantità</th>
+        <th>Utente</th>
+        <th>Azioni</th>
+    </thead>
+    <tbody>
+        <% dati.forEach(dato => { %>
+        <tr>
+            <td><%-dato.data%></td>
+            <td><%-dato.codicearticolo%></td>
+            <td><%-dato.movimento%></td>
+            <td><%-dato.ubicazione%></td>
+            <td><%=dato.quantita %> </td>
+            <% if (dato.hasOwnProperty('author')) { %>
+            <td><%-dato.author.nomereale%></td>
+            <% }else{ %>
+            <td></td>
+            <% } %>
+            <td></td>
+        </tr>
+        <% }) %>
+    </tbody>
+</table>
+
+<p style="color: red;">Piccolo promemoria, La colonna utente corrisponde al telefono/dispositivo usato, intero magazzino
+    si riferisce al profilo che si seleziona aprendo l'app sul pc</p>
+<script>
+    $(document).ready(function () {
+        $('table').DataTable({
+            //responsive: false,
+            sorting: false,
+            ordering: false,
+            "language": {
+                "sEmptyTable": "Nessun dato presente nella tabella",
+                "sInfo": "Vista da _START_ a _END_ di _TOTAL_ elementi",
+                "sInfoEmpty": "Vista da 0 a 0 di 0 elementi",
+                "sInfoFiltered": "(filtrati da _MAX_ elementi totali)",
+                "sInfoPostFix": "",
+                "sInfoThousands": ".",
+                "sLengthMenu": "Visualizza _MENU_ elementi",
+                "sLoadingRecords": "Caricamento...",
+                "sProcessing": "Elaborazione...",
+                "sSearch": "Cerca:",
+                "sZeroRecords": "La ricerca non ha portato alcun risultato.",
+                "oPaginate": {
+                    "sFirst": "Inizio",
+                    "sPrevious": "Precedente",
+                    "sNext": "Successivo",
+                    "sLast": "Fine"
+                },
+                "oAria": {
+                    "sSortAscending": ": attiva per ordinare la colonna in ordine crescente",
+                    "sSortDescending": ": attiva per ordinare la colonna in ordine decrescente"
+                }
+            },
+        });
+    });
+</script>
+
+<link rel="stylesheet" type="text/css" href="/css/cdn/daterangepicker.css" />
+<script src="/scripts/cdn/moment.js"></script>
+<script src="/scripts/cdn/daterangepicker.min.js"></script>
+<script src="/scripts/cdn/daterangepicker.js"></script>
+<%- include("parziali/footer.ejs")  %>

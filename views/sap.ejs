@@ -1,0 +1,226 @@
+<%- include("parziali/header.ejs")  %>
+<link rel="stylesheet" href="/css/pulsingqualityalert.css">
+
+<div class="container">
+   <div class="row">
+      <div class="col-sm-1 col-md-3">
+      </div>
+      <div class="col-sm-10 col-md-6" align="center">
+         <br>
+         <legend>Ricerca parametri</legend>
+         <form action="/sap" method="POST" id="frmsapsearch">
+            <div class="form-group">
+               <button name="submit" type="submit" id="btncerca" name="btncerca"
+                  class="btn btn-primary btn-lg active pulsingButton"><i class="fas fa-sync">&nbsp;</i>Aggiorna da SAP
+               </button>
+            </div>
+            <div class="form-group row">
+               <label class="col-4">Mostrare anche:</label>
+               <div class="col-8">
+                  <div class="custom-control custom-checkbox custom-control-inline">
+                     <input name="chk_optionals_display" id="chk_optionals_display_0" type="checkbox"
+                        class="custom-control-input" value="L" onchange=" showhideadditionals();">
+                     <label for="chk_optionals_display_0" class="custom-control-label">Cancellati (L)</label>
+                  </div>
+                  <div class="custom-control custom-checkbox custom-control-inline">
+                     <input name="chk_optionals_display" id="chk_optionals_display_1" type="checkbox"
+                        class="custom-control-input" value="2" onchange=" showhideadditionals();">
+                     <label for="chk_optionals_display_1" class="custom-control-label">Elaborati (2)</label>
+                  </div>
+               </div>
+            </div>
+         </form>
+      </div>
+      <div class="col-sm-1 col-md-3">
+      </div>
+   </div>
+</div>
+<script>
+   document.getElementById("frmsapsearch").onsubmit = function () {
+      document.getElementById("btncerca").disabled = true;
+   };
+</script>
+<hr>
+<% if (typeof dati !== "undefined" || dati !== null) { %>
+<legend>LISTA DI PRELIEVO AGGIORNATA Al <b><%-process.env.saplistaaggiornamento%></b></legend>
+<h5>NB: la giacenza non è in tempo reale, ce uno scarto di ~15m (ultimo agg.<%- process.env.MARDLASTUPDATE %>)
+</h5>
+<table class="table-striped table-bordered" width="100%">
+   <thead>
+      <!-- <th>Mandante</th> -->
+      <th>Num prot</th>
+      <th>Materiale</th>
+      <th>Definizione</th>
+      <th>Ubicazioni</th>
+      <th>Qta Rich.</th>
+      <th>In Stock/CQ</th>
+      <th>Qta Cons.</th>
+      <th>Liv. Urgenza</th>
+      <th>Note</th>
+      <th>Data Rich.</th>
+      <th>Ora</th>
+      <th>Richiedente</th>
+      <th>Data Svolg.</th>
+      <th>Ora</th>
+      <th>Nome utente</th>
+      <th>Stato Prot</th>
+   </thead>
+   <tbody>
+      <% for( let i = 0; i < dati.length; i++ ) { %>
+      <% if (parseInt(dati[i].STATO) == 2) { %>
+      <tr hidden name="2">
+         <% } else if (parseInt(dati[i].STATO) == 1) { %>
+      <tr name="1">
+         <% } else if (parseInt(dati[i].STATO) == 3) { %>
+      <tr name="3">
+         <% }else{ %>
+      <tr hidden name="L">
+         <% } %>
+         <td><%-parseInt(dati[i].NUM_PROT||0) %></td>
+         <td><%-dati[i].MATNR %></td>
+         <td><%-(dati[i].MAKTX||" ") %></td>
+         <td><%-dati[i].ubicazione %></td>
+         <td><%-parseInt(dati[i].LABST||0) %> pz</td>
+         <% if ( dati[i].hasOwnProperty("stock") && dati[i].stock != null  && dati[i].stock.hasOwnProperty("LABST") && dati[i].stock.hasOwnProperty("INSME")) { %>
+         <td>Stock:&nbsp;<%-parseInt(dati[i].stock.LABST)%> <br> CQ:&nbsp;<%-parseInt(dati[i].stock.INSME) %> </td>
+         <% } else { %>
+         <td>----</td>
+         <% } %>
+         <td><%-parseInt(dati[i].QTA_ELABORATA||0) %> pz</td>
+         <td>
+            <% if (dati[i].ICON_URG=="@0A@") { %>
+            <i style="color:red" class="fas fa-circle"></i><i class="fas fa-circle"></i><i
+               class="fas fa-circle"></i>&nbsp;<%-dati[i].LIV_URGEN %>&nbsp;<%-dati[i].DESC_LIV_U %>
+            <% } else if(dati[i].ICON_URG=="@09@") {%>
+            <i class="fas fa-circle"></i><i style="color:yellow" class="fas fa-circle"></i><i
+               class="fas fa-circle"></i>&nbsp;<%-dati[i].LIV_URGEN %>&nbsp;<%-dati[i].DESC_LIV_U %>
+            <% } else if (dati[i].ICON_URG=="@08@") { %>
+            <i class="fas fa-circle"></i><i class="fas fa-circle"></i><i style="color:green"
+               class="fas fa-circle"></i>&nbsp;<%-dati[i].LIV_URGEN %>&nbsp;<%-dati[i].DESC_LIV_U %>
+            <% }else{ %>
+            sconosciuto
+            <% }%>
+         </td>
+         <td><%-dati[i].NOTE %></td>
+         <% if (dati[i].DATUM_I == "00000000") { %>
+         <td></td>
+         <% }else{ %>
+         <td><%-moment(dati[i].DATUM_I, "YYYYMMDD").format("DD/MM/YYYY")%> </td>
+         <% } %>
+         <% if (dati[i].UZEIT_I == "000000") { %>
+         <td></td>
+         <% }else{ %>
+         <td><%-moment(dati[i].UZEIT_I, "HHmmss").format("HH:mm:ss")%> </td>
+         <% } %>
+         <td><%-dati[i].UNAME_I %></td>
+         <% if (dati[i].DATUM_M == "00000000") { %>
+         <td></td>
+         <% }else{ %>
+         <td><%-moment(dati[i].DATUM_M, "YYYYMMDD").format("DD/MM/YYYY")%> </td>
+         <% } %>
+         <% if (dati[i].UZEIT_M == "000000") { %>
+         <td></td>
+         <% }else{ %>
+         <td><%-moment(dati[i].UZEIT_M, "HHmmss").format("HH:mm:ss")%> </td>
+         <% } %>
+         <td><%-dati[i].UNAME_M %></td>
+         <td><%-dati[i].STATO %>&nbsp;<%-dati[i].DESC_STATO %></td>
+      </tr>
+      <% } %>
+   </tbody>
+</table>
+
+
+
+<script>
+   $(document).ready(function () {
+      $('table').DataTable({
+         dom: 'Bfrtip',
+         paging: false,
+         "bInfo": false,
+         buttons: [{
+            extend: "print",
+            exportOptions: {
+               columns: ':visible',
+               rows: ':visible'
+            },
+            className: "btn-primary",
+            text: '<i class="fa fa-print">&nbsp;</i>Stampa',
+            customize: function (win) {
+               var last = null;
+               var current = null;
+               var bod = [];
+               var css = '@page { size: landscape; }',
+                  head = win.document.head || win.document.getElementsByTagName('head')[0],
+                  style = win.document.createElement('style');
+               style.type = 'text/css';
+               style.media = 'print';
+               if (style.styleSheet) {
+                  style.styleSheet.cssText = css;
+               } else {
+                  style.appendChild(win.document.createTextNode(css));
+               };
+               head.appendChild(style);
+            }
+         }, ],
+         "responsive": true,
+         "language": {
+            "sEmptyTable": "Nessun dato presente nella tabella",
+            "sInfo": "Vista da _START_ a _END_ di _TOTAL_ elementi",
+            "sInfoEmpty": "Vista da 0 a 0 di 0 elementi",
+            "sInfoFiltered": "(filtrati da _MAX_ elementi totali)",
+            "sInfoPostFix": "",
+            "sInfoThousands": ".",
+            "sLengthMenu": "Visualizza _MENU_ elementi",
+            "sLoadingRecords": "Caricamento...",
+            "sProcessing": "Elaborazione...",
+            "sSearch": "Cerca:",
+            "sZeroRecords": "La ricerca non ha portato alcun risultato.",
+            "oPaginate": {
+               "sFirst": "Inizio",
+               "sPrevious": "Precedente",
+               "sNext": "Successivo",
+               "sLast": "Fine"
+            },
+            "oAria": {
+               "sSortAscending": ": attiva per ordinare la colonna in ordine crescente",
+               "sSortDescending": ": attiva per ordinare la colonna in ordine decrescente"
+            }
+         },
+      });
+   });
+</script>
+<% }else{ %>
+<h2>Nessun Dato presente</h2>
+<% } %>
+
+
+
+<script>
+   function showhideadditionals() {
+      var btncanc = document.getElementById("chk_optionals_display_0");
+      var btnelab = document.getElementById("chk_optionals_display_1");
+      var cancellati = document.getElementsByName("L");
+      var elaborati = document.getElementsByName("2");
+
+      if (btncanc.checked == true) {
+         for (let i = 0; i < cancellati.length; i++) {
+            cancellati[i].hidden = false;
+         };
+      } else {
+         for (let i = 0; i < cancellati.length; i++) {
+            cancellati[i].hidden = true;
+         };
+      };
+      if (btnelab.checked == true) {
+         for (let i = 0; i < elaborati.length; i++) {
+            elaborati[i].hidden = false;
+         };
+      } else {
+         for (let i = 0; i < elaborati.length; i++) {
+            elaborati[i].hidden = true;
+         };
+      };
+   };
+</script>
+<%- include("parziali/footer.ejs")  %>

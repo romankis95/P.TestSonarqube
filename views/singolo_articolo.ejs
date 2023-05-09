@@ -1,0 +1,525 @@
+<%- include("parziali/header.ejs")  %>
+<div class="jumbotron jumbotron-fluid">
+    <div class="container">
+        <h1 class="display-4">Risultati ricerca per <span><%-query%></span></h1>
+        <p class="lead">Abbiamo trovato <span><%-risultati.length%> risultati</span></p>
+    </div>
+</div>
+
+
+<div class="container-fluid">
+
+    <table id="tabellainventario" class="table-striped">
+        <thead>
+            <th>Magazzino</th>
+            <th>Armadio</th>
+            <th>Ripiano</th>
+            <th>Posizione</th>
+            <th>Articolo</th>
+            <th>Descrizione</th>
+            <th>Quantità</th>
+            <th>Um</th>
+            <th>Data inserimento</th>
+            <th>Data conta</th>
+            <th>Autore conta</th>
+            <th>Azioni</th>
+        </thead>
+        <tbody>
+            <% for( let i = 0; i < risultati.length; i++ ) { %>
+            <tr id="tr<%= risultati[i]._id %>">
+                <td><%= risultati[i].magazzino %> </td>
+                <td><%= risultati[i].armadio %> </td>
+                <td><%= risultati[i].ripiano %> </td>
+                <td><%= risultati[i].posizione %> </td>
+                <td><%= risultati[i].articolo %> </td>
+                <td><%= risultati[i].descrizione %> </td>
+                <td><%= risultati[i].quantita %> </td>
+                <td> <%=risultati[i].um%> </td>
+
+                <td><%= risultati[i].datainserimento %> </td>
+                <td><%= risultati[i].dataultimaqta %> </td>
+                <td><%= risultati[i].autoreultimaqta %> </td>
+                <td>
+                    <div class="btn-group" role="group" aria-label="Basic example">
+                        <% if (typeof currentUser!= "undefined" && (currentUser.isAdmin || currentUser.magazzino == risultati[i].magazzino )) { %>
+                        <button type="button" class="btn btn-warning" onclick="fill_modal(this)"
+                            id="btnedit<%-risultati[i]._id%>" name="<%-risultati[i]._id%>" data-toggle="modal"
+                            data-target="#editModal">
+                            <i class="fas fa-cog">
+                            </i>
+                        </button>
+                        <a ctype="button" class="btn btn-danger" onclick="fill_modal_delete(this)"
+                            id="btndel<%-risultati[i]._id%>" name="<%-risultati[i]._id%>" data-toggle="modal"
+                            data-target="#deleteModal">
+                            <i class="fas fa-trash-alt">
+                            </i>
+                        </a>
+                    </div>
+                    <% } %>
+                </td>
+            </tr>
+            <% } %>
+        </tbody>
+    </table>
+</div>
+
+<script>
+    $(document).ready(function () {
+        document.title = "MAGAZZINO_" + moment().format("DD/MM/YYYY");
+        $('#tabellainventario').DataTable({
+            'dom': 'Bfrtip',
+            'order': [
+                [0, "asc"],
+                [1, "asc"],
+                [2, "asc"]
+            ],
+            'columnDefs': [{
+                'type': 'date-euro',
+                'targets': [6]
+            }],
+            'buttons': [
+                'copy', 'csv', 'excel', 'pdf', 'print'
+            ],
+            "buttons": {
+                "buttons": [{
+                    'extend': 'excelHtml5',
+                    'text': '<i class="fas fa-file-excel"></i> Esporta in Excel',
+                    'titleAttr': 'Esporta in Excel',
+                    "className": 'btn btn-success'
+                }, ],
+                "dom": {
+                    "button": {
+                        "className": 'btn'
+                    }
+                },
+            },
+            "language": {
+                "sEmptyTable": "Nessun dato presente nella tabella",
+                "sInfo": "Vista da _START_ a _END_ di _TOTAL_ elementi",
+                "sInfoEmpty": "Vista da 0 a 0 di 0 elementi",
+                "sInfoFiltered": "(filtrati da _MAX_ elementi totali)",
+                "sInfoPostFix": "",
+                "sInfoThousands": ".",
+                "sLengthMenu": "Visualizza _MENU_ elementi",
+                "sLoadingRecords": "Caricamento...",
+                "sProcessing": "Elaborazione...",
+                "sSearch": "Cerca:",
+                "sZeroRecords": "La ricerca non ha portato alcun risultato.",
+                "oPaginate": {
+                    "sFirst": "Inizio",
+                    "sPrevious": "Precedente",
+                    "sNext": "Successivo",
+                    "sLast": "Fine"
+                },
+                "oAria": {
+                    "sSortAscending": ": attiva per ordinare la colonna in ordine crescente",
+                    "sSortDescending": ": attiva per ordinare la colonna in ordine decrescente"
+                }
+            },
+            "lengthMenu": [
+                [15, 35, 50, -1],
+                [15, 35, 50, "All"]
+            ],
+        });
+
+    });
+</script>
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Elimina</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row">
+                    <label for="txtubicazionedelete" class="col-4 col-form-label">Ubicazione</label>
+                    <div class="col-8">
+                        <input readonly id="txtubicazionedelete" name="txtubicazionedelete" type="text"
+                            class="form-control" required="required">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="txtarticolo" class="col-4 col-form-label">Articolo</label>
+                    <div class="col-8">
+                        <input readonly id="txtarticolodelete" name="txtarticolodelete" type="text" class="form-control"
+                            required="required">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="txtdescrizione" class="col-4 col-form-label">Descrizione</label>
+                    <div class="col-8">
+                        <input readonly id="txtdescrizionedelete" name="txtdescrizionedelete" type="text"
+                            class="form-control" required="required">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="txtdata" class="col-4 col-form-label">Quantità</label>
+                    <div class="col-8">
+                        <input readonly id="txtqtadelete" name="txtqtadelete" type="number" class="form-control"
+                            value="0" required="required">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="txtdata" class="col-4 col-form-label">Data</label>
+                    <div class="col-8">
+                        <input readonly id="txtdatadelete" name="txtdatadelete" type="date" class="form-control"
+                            required="required">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Annulla</button>
+                <button type="button" class="btn btn-danger" id="btnservinsertdelete">Elimina</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editModalLabel">Modifica</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form name="frmchange" id="frmchange" action="" method="POST">
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <label for="selectmagazzinomodal" class="col-4 col-form-label">Magazzino</label>
+                        <div class="col-8">
+                            <select id="selectmagazzinomodal" name="selectmagazzinomodal" class="custom-select"
+                                required="required">
+                                <% magazzini.forEach(magazzino => { %>
+                                <option value="<%-magazzino%>"><%-magazzino%></option>
+                                <% }) %>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="txtubicazione" class="col-4 col-form-label">Ubicazione</label>
+                        <div class="col-8">
+                            <input id="txtubicazione" name="txtubicazione" type="text" maxlength="5" minlength="5"
+                                class="form-control" required="required">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="txtarticolo" class="col-4 col-form-label">Articolo</label>
+                        <div class="col-8">
+                            <input id="txtarticolo" name="txtarticolo" type="text" class="form-control"
+                                required="required">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="txtdescrizione" class="col-4 col-form-label">Descrizione</label>
+                        <div class="col-8">
+                            <input id="txtdescrizione" name="txtdescrizione" type="text" class="form-control"
+                                required="required">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="txtdata" class="col-4 col-form-label">Quantità</label>
+                        <div class="col-8">
+                            <input id="txtqta" name="txtqta" type="number" class="form-control" value="0"
+                                required="required">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="selectum" class="col-4 col-form-label">Unità misura</label>
+                        <div class="col-8">
+                            <select id="selectum" name="selectum" class="custom-select"
+                                required="required">
+                                <option value="PZ">PZ</option>
+                                <option value="NR">NR</option>
+                                <option value="M">M</option>
+                                <option value="MM">MM</option>
+                                <option value="KG">KG</option>
+                                <option value="G">G</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="txtdata" class="col-4 col-form-label">Data</label>
+                        <div class="col-8">
+                            <input id="txtdata" name="txtdata" type="date" class="form-control" required="required">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annulla</button>
+                    <button type="button" disabled class="btn btn-primary" id="btnservinsert">Salva</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function fill_modal(btn) {
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                var response = JSON.parse(this.responseText);
+                if (response) {
+                    document.getElementById('txtarticolo').value = response.articolo;
+                    document.getElementById('txtubicazione').value = response.ubicazione;
+                    document.getElementById('txtdescrizione').value = response.descrizione;
+                    document.getElementById('txtdata').value = moment(response.datapart, "YYYYMMDD").format(
+                        'YYYY-MM-DD');
+                    document.getElementById('txtqta').value = response.quantita;
+                    document.getElementById("frmchange").action = "/inventario/modifica/" + response._id + "/";
+                    var attuale = response.magazzino;
+                    var opzioni = document.getElementById("selectmagazzinomodal").options;
+                    for (let i = 0; i < opzioni.length; i++) {
+                        if (opzioni[i].value == attuale) {
+                            opzioni[i].selected = true;
+                            break;
+                        }
+                    }
+                    checkdati();
+                } else {
+                    location.reload();
+                }
+            }
+        }
+        xmlhttp.open("GET", "/inventario/ajaxsearch/" + btn.name + "/", true);
+        xmlhttp.send();
+    }
+    /**
+     * Funzione che riempie il modal delete
+     */
+    function fill_modal_delete(btn) {
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                var response = JSON.parse(this.responseText);
+                if (response) {
+                    document.getElementById('txtarticolodelete').value = response.articolo;
+                    document.getElementById('txtubicazionedelete').value = response.ubicazione;
+                    document.getElementById('txtdescrizionedelete').value = response.descrizione;
+                    document.getElementById('txtdatadelete').value = moment(response.datapart, "YYYYMMDD").format(
+                        'YYYY-MM-DD');
+                    document.getElementById('txtqtadelete').value = response.quantita;
+                    document.getElementById("btnservinsertdelete").name = response._id;
+                } else {
+                    location.reload();
+                }
+            }
+        }
+        xmlhttp.open("GET", "/inventario/ajaxsearch/" + btn.name + "/", true);
+        xmlhttp.send();
+    }
+</script>
+
+
+<script>
+    $("#frmchange")
+        .on("input", function () {
+            checkdati();
+        });
+
+
+    $('#btnservinsert')
+        .on('click', function () {
+            checkdati().then(function (result) {
+                console.log(result);
+                if (result) {
+                    $.ajax({
+                        type: "POST",
+                        url: $('#frmchange').attr('action'),
+                        data: $('#frmchange').serialize(),
+                        success: function (response) {
+                            console.log(response);
+                            if (response.type === 'success') {
+                                let odp = response.data;
+                                let row = document.getElementById('tr' + odp._id);
+                                row.cells[0].innerHTML = odp.magazzino;
+                                row.cells[1].innerHTML = odp.ubicazione[0];
+                                row.cells[2].innerHTML = odp.ubicazione[1];
+                                row.cells[3].innerHTML = odp.ubicazione.slice(2);
+                                row.cells[4].innerHTML = '<a href="../ub/' + odp.articolo +
+                                    '">' + odp.articolo + '</a>';
+                                row.cells[5].innerHTML = odp.descrizione;
+                                row.cells[6].innerHTML = odp.quantita;
+                                row.cells[7].innerHTML = odp.um;
+
+                                row.cells[8].innerHTML = odp.datainserimento;
+                                row.cells[9].innerHTML = odp.dataultimaqta;
+                                row.cells[10].innerHTML = odp.autoreultimaqta;
+                                $('#editModal').modal('hide');
+                            } else {
+                                alert(JSON.stringify(response.message));
+                            }
+                        }
+                    });
+                } else {
+                    alert('Dati non validi');
+                }
+            });
+        });
+
+
+
+    $('#btnservinsertdelete').on('click', function (event) {
+        $('#deleteModal').modal('hide');
+        event.preventDefault();
+        let name = $(this).attr('name');
+        let url = '/inventario/rimuovi/' + name + '/';
+        $.ajax({
+            url: url,
+            type: 'GET',
+            success: function (result) {
+                document.getElementById('tr' + name).remove();
+            }
+        });
+    })
+
+    async function checkdati() {
+        let flag = true;
+        let codice = document.getElementById("txtarticolo");
+        let ubicazione = document.getElementById("txtubicazione");
+        let data = document.getElementById("txtdata");
+        let descrizione = document.getElementById("txtdescrizione");
+        let qta = document.getElementById("txtqta");
+        let tasto = document.getElementById("btnservinsert");
+        tasto.disabled = true;
+
+        codice.classList.remove("is-invalid");
+        codice.classList.remove("is-valid");
+        ubicazione.classList.remove("is-invalid");
+        ubicazione.classList.remove("is-valid");
+        data.classList.remove("is-invalid");
+        data.classList.remove("is-valid");
+        descrizione.classList.remove("is-invalid");
+        descrizione.classList.remove("is-valid");
+        qta.classList.remove("is-invalid");
+        qta.classList.remove("is-valid");
+
+        if (codice.value != null && codice.value != "" && data.value != null && data.value != "" && qta.value !=
+            null &&
+            qta.value != "") {
+            codice.classList.remove("is-invalid");
+            codice.classList.add("is-valid");
+            codice.value = codice.value.trim();
+            codice.value = codice.value.toUpperCase();
+            tasto.disabled = true;
+
+            if (qta.value != null && qta.value != "" && qta.value >= 0) {
+                qta.classList.remove("is-invalid");
+                qta.classList.add("is-valid");
+            } else {
+                flag = false;
+                qta.classList.add("is-invalid");
+                qta.classList.remove("is-valid");
+            }
+            if (ubicazione.value != null && ubicazione.value != "") {
+                if (ubicazione.value.length == 5) {
+                    let testregex = /[a-zA-Z]{1}[0-9]{4}/;
+                    let teststring = ubicazione.value;
+                    let test = testregex.test(teststring);
+                    if (test == true) {
+                        ubicazione.classList.remove("is-invalid");
+                        ubicazione.classList.add("is-valid");
+                    } else {
+                        flag = false;
+                        ubicazione.classList.add("is-invalid");
+                        ubicazione.classList.remove("is-valid");
+                    }
+                } else {
+                    flag = false;
+                    ubicazione.classList.add("is-invalid");
+                    ubicazione.classList.remove("is-valid");
+                }
+            } else {
+                flag = false;
+                ubicazione.classList.add("is-invalid");
+                ubicazione.classList.remove("is-valid");
+            }
+            checkcodice(codice.value).then(function (result) {
+                if (result) {
+                    codice.classList.remove("is-invalid");
+                    codice.classList.add("is-valid");
+                } else {
+                    codice.classList.remove("is-valid");
+                    codice.classList.add("is-invalid");
+                }
+
+            });
+
+            if (flag == false) {
+                tasto.disabled = true;
+                return false;
+            } else {
+                tasto.disabled = false;
+                return true;
+            }
+        }
+    };
+
+
+
+    /**
+     * 
+     * Cerca se il codice esiste in ZMAT
+     */
+    async function checkcodice(stringa) {
+        console.log(stringa);
+        let txtarticolo = document.getElementById("txtarticolo");
+        let txtdescrizione = document.getElementById("txtdescrizione");
+        if (stringa) {
+            stringa = stringa.toUpperCase();
+            let query = "materiale=" + stringa;
+            const xmlhttp = new XMLHttpRequest();
+            xmlhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    const response = JSON.parse(this.responseText);
+                    if (response) {
+                        if (response.MATNR.toString() === "0000") {
+                            txtarticolo.classList.add('is-invalid');
+                            txtarticolo.classList.remove('is-valid');
+                            txtdescrizione.value = "";
+                            return false;
+                        } else {
+                            txtarticolo.classList.remove('is-invalid');
+                            txtarticolo.classList.add('is-valid');
+                            txtdescrizione.value = response.MAKTX;
+                            return true;
+                        }
+                    } else {
+                        txtarticolo.classList.add('is-invalid');
+                        txtarticolo.classList.remove('is-valid');
+                        txtdescrizione.value = "";
+                        return false;
+                    }
+                }
+            }
+            xmlhttp.open("GET", "/principale/search_inzmat?" + query, true);
+            xmlhttp.send();
+        }
+        return false;
+    }
+</script>
+
+<script>
+    $('#editModal').on('hidden.bs.modal', function (e) {
+        document.getElementById('txtarticolo').value = "";
+        document.getElementById('txtubicazione').value = "";
+        document.getElementById('txtdescrizione').value = "";
+        document.getElementById('txtdata').value = "";
+    });
+</script>
+
+
+
+<%- include("parziali/footer.ejs")  %>

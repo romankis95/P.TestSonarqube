@@ -1,0 +1,53 @@
+<script>
+    function fdelete(btn) {
+        // console.log(btn);
+        let id = btn.name;
+        /*ajax call */
+        var dati = "id=" + btn.name;
+        event.preventDefault();
+        $.ajax({
+            global: false,
+            type: 'POST',
+            url: '/ub/delete',
+            dataType: 'html',
+            data: dati,
+            success: function (resp) {
+                $.notify({
+                    title: '<b>Perfetto!</b>',
+                    message: 'Eliminato!'
+                }, {
+                    type: 'success',
+                    delay: 1000,
+                    allow_dismiss: true,
+                    newest_on_top: true,
+                    showProgressbar: false,
+                    placement: {
+                        from: "top",
+                        align: "center"
+                    },
+                });
+                document.getElementById("tr" + id).remove();
+            },
+            error: function (err) {
+                // console.log(err);
+                $.notify({
+                    title: '<b>Errore!</b>',
+                    message: 'Si è verificato un errore, avviso Roman!'
+                }, {
+                    type: 'danger',
+                    delay: 1000,
+                    allow_dismiss: true,
+                    newest_on_top: true,
+                    showProgressbar: false,
+                    placement: {
+                        from: "top",
+                        align: "center"
+                    },
+                });
+            }
+        });
+    }
+</script>
+
+
+
