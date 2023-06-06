@@ -18,13 +18,13 @@ router.get('/:codice/', async function (req, res) {
         try {
             var query_mag = await MAGAZZINI.find({}).lean();
             var magazzini = new Array();
-            for (const element of query_mag) {
-                magazzini.push(element.nome);
+            for (let i = 0; i < query_mag.length; i++) {
+                magazzini.push(query_mag[i].nome);
             }
             magazzini = [...new Set(magazzini)];
-            const trovati = await UBICAZIONE.find({
-                "articolo": codice.toString()
-            }).lean()
+            let trovati = await UBICAZIONE.find({
+                "articolo": codice
+            }).lean();
             return res.render("singolo_articolo", {
                 risultati: trovati,
                 magazzini: magazzini,
@@ -69,7 +69,7 @@ router.post("/", middleware.isLoggedIn, async function (req, res) {
         locazione = locazione.trim();
         if (validubicazione) {
             let anagrafica = await ZMAT.findOne({
-                "MATNR": codice.toString()
+                "MATNR": codice
             }).lean();
 
             if (anagrafica) {
@@ -86,18 +86,18 @@ router.post("/", middleware.isLoggedIn, async function (req, res) {
 
 
             const newUbicazione = {
-                armadio: armadio.toString(),
-                ripiano: ripiano.toString(),
-                posizione: posizione.toString(),
-                descrizione: desc.toString(),
-                articolo: codice.toString(),
+                armadio: armadio,
+                ripiano: ripiano,
+                posizione: posizione,
+                descrizione: desc,
+                articolo: codice,
                 datapart: moment().format("YYYYMMDD"),
                 datainserimento: moment().format("DD/MM/YYYY HH:mm:ss"),
-                ubicazione: armadio.toString() + "" + ripiano.toString() + "" + posizione.toString(),
-                magazzino: magazzino.toString(),
-                quantita: quantita.toString(),
+                ubicazione: armadio + "" + ripiano + "" + posizione,
+                magazzino: magazzino,
+                quantita: quantita,
                 dataultimaqta: moment().format("DD/MM/YYYY HH:mm:ss"),
-                autoreultimaqta: req.user.username.toString()
+                autoreultimaqta: req.user.username
             };
 
             try {
@@ -112,12 +112,12 @@ router.post("/", middleware.isLoggedIn, async function (req, res) {
             const movimento = {
                 data: moment().format("DD/MM/YYYY HH:mm:ss"),
                 datapart: moment().format("YYYYMMDD"),
-                codicearticolo: codice.toString(),
+                codicearticolo: codice,
                 movimento: "add",
-                ubicazione: armadio.toString() + "" + ripiano.toString() + "" + posizione.toString(),
+                ubicazione: armadio + "" + ripiano + "" + posizione,
                 author: req.user,
-                magazzino: magazzino.toString(),
-                quantita: quantita.toString()
+                magazzino: magazzino,
+                quantita: quantita
             };
 
             try {
@@ -136,6 +136,8 @@ router.post("/", middleware.isLoggedIn, async function (req, res) {
     }
     res.redirect("/principale");
 });
+
+
 
 
 
@@ -161,9 +163,9 @@ router.get("/ajaxsearch", middleware.isLoggedIn, async function (req, res) {
             const posizione = locazione[2] + locazione[3] + locazione[4];
             try {
                 var x = await UBICAZIONE.find({
-                    armadio: armadio.toString(),
-                    ripiano: ripiano.toString(),
-                    posizione: posizione.toString()
+                    armadio: armadio,
+                    ripiano: ripiano,
+                    posizione: posizione
                 });
                 res.json({
                     codici: x,
@@ -190,6 +192,8 @@ router.get("/ajaxsearch", middleware.isLoggedIn, async function (req, res) {
         });
     };
 });
+
+
 
 
 router.post("/update", middleware.isLoggedIn, async function (req, res) {
@@ -248,6 +252,7 @@ router.post("/delete", middleware.isLoggedIn, async function (req, res) {
         res.json(null)
     }
 });
+
 
 
 
