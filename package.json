@@ -14,7 +14,7 @@
   "author": "Roman Kis",
   "license": "ISC",
   "dependencies": {
-    "axios": "^0.21.4",
+    "axios": "^1.4.0",
     "connect-flash": "^0.1.1",
     "connect-mongo": "^4.4.1",
     "dotenv": "^10.0.0",
