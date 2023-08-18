@@ -36,7 +36,7 @@
     "querystring": "^0.2.1",
     "serve-favicon": "^2.5.0",
     "winston": "^3.3.3",
-    "winston-daily-rotate-file": "^4.5.5"
+    "winston-daily-rotate-file": "^4.7.1"
   },
   "devDependencies": {
     "eslint": "^8.26.0"
